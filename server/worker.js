@@ -14,12 +14,7 @@ const workers = process.env.WORKERS
             console.log(`Processing ${images.length}`);
 
             var jobs = times(workers, () => images.pop());
-            await Promise.all(jobs.map(j => imageLibrary.process(j.image)));
-
-            // for (i in images) {
-            //     var image = images[i];
-            //     await imageLibrary.process(image);
-            // }
+            await Promise.all(jobs.map(j => imageLibrary.process(j))).catch(err => console.error(err));
 
             await sleep(1000);
         }

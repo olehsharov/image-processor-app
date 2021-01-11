@@ -77,20 +77,19 @@ ImageLibrary.prototype.process = async function(image) {
         console.log(`${file}: background`);
         var foreground = `${outputFolder}/foreground.png`;
         var command = `python "server/rembg/remove.py" "${outputFolder}/original.jpg" "${foreground}"`
-        console.log(command)
-        child_process.exec(command, async (error, stderr, stdout) => {
+        console.log(command);
+        child_process.exec(command, (error, stderr, stdout) => {
             if (error) {
                 console.error(stderr);
-                reject()
+                reject(stderr)
             } else {
-                console.log(stdout);
                 var endTime = new Date().getTime() - start;
                 console.log(`${file}: done in ${endTime/100}s`);
             
                 var settings = JSON.parse(JSON.stringify(defaultSettings));
                 settings.processedTime = endTime;
                 fs.writeFileSync(`${outputFolder}/settings.json`, JSON.stringify(settings));
-                resolve()
+                resolve(stdout)
             }
         });
     });
