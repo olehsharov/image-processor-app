@@ -16,7 +16,7 @@ const workers = process.env.WORKERS
 
             var jobs = times(workers, () => times(gpus, (gpu) => {
                 return {
-                    gpu: gpu,
+                    gpu: `cuda:${gpu}`,
                     image: images.pop()
                 }
             }))
