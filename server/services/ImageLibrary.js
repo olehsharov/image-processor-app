@@ -63,26 +63,29 @@ ImageLibrary.prototype.saveSettings  = function(imagePath, settings) {
 }
 
 ImageLibrary.prototype.process = async function(image, gpu) {
-    var start = new Date().getTime();
-    var file = image.file;
-    var outputFolder = `${this.root}/${file}.background`;
-    if (!fs.existsSync(outputFolder)) {
-        fs.mkdirSync(outputFolder);
-    }
-
-    console.log(`${file}: original`);
-    await sharp(`${this.root}/${file}`).rotate().toFile(`${outputFolder}/original.jpg`);
-
-    console.log(`${file}: background`);
-    var foreground = `${outputFolder}/foreground.png`;
-    child_process.execSync(`python "server/rembg/remove.py" "${outputFolder}/original.jpg" "${foreground}" ${gpu}`);
-
-    var endTime = new Date().getTime() - start;
-    console.log(`${file}: done in ${endTime/100}s`);
-
-    var settings = JSON.parse(JSON.stringify(defaultSettings));
-    settings.processedTime = endTime;
-    fs.writeFileSync(`${outputFolder}/settings.json`, JSON.stringify(settings));
+    return new Promise(async (resolve) => {
+        var start = new Date().getTime();
+        var file = image.file;
+        var outputFolder = `${this.root}/${file}.background`;
+        if (!fs.existsSync(outputFolder)) {
+            fs.mkdirSync(outputFolder);
+        }
+    
+        console.log(`${file}: original`);
+        await sharp(`${this.root}/${file}`).rotate().toFile(`${outputFolder}/original.jpg`);
+    
+        console.log(`${file}: background`);
+        var foreground = `${outputFolder}/foreground.png`;
+        child_process.exec(`python "server/rembg/remove.py" "${outputFolder}/original.jpg" "${foreground}" ${gpu}`, async () => {
+            var endTime = new Date().getTime() - start;
+            console.log(`${file}: done in ${endTime/100}s`);
+        
+            var settings = JSON.parse(JSON.stringify(defaultSettings));
+            settings.processedTime = endTime;
+            fs.writeFileSync(`${outputFolder}/settings.json`, JSON.stringify(settings));
+            resolve()
+        });
+    });
 }
 
 ImageLibrary.prototype.exportImage = async function(element, imagePath) {
