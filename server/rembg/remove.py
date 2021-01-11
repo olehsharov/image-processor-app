@@ -11,6 +11,9 @@ from scipy.ndimage.morphology import binary_erosion
 import torch
 from u2net import detect
 
+import os
+os.environ["CUDA_VISIBLE_DEVICES"]=""
+
 def alpha_matting_cutout(
     img,
     mask,
@@ -86,9 +89,8 @@ def remove(
 ):
     model = get_model(model_name)
 
-    # if (torch.cuda.device_count() > 0):
-    #     device = torch.device(gpu)
-    #     model.to(device)
+    device = torch.device("cpu")
+    model.to(device)
 
     img = Image.open(input).convert("RGB")
     mask = detect.predict(model, np.array(img)).convert("L")
