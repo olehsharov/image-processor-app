@@ -76,7 +76,9 @@ ImageLibrary.prototype.process = async function(image, gpu) {
     
         console.log(`${file}: background`);
         var foreground = `${outputFolder}/foreground.png`;
-        child_process.exec(`python "server/rembg/remove.py" "${outputFolder}/original.jpg" "${foreground}" ${gpu}`, async (error, stderr, stdout) => {
+        var command = `python "server/rembg/remove.py" "${outputFolder}/original.jpg" "${foreground}" ${gpu}`
+        console.log(command)
+        child_process.exec(command, async (error, stderr, stdout) => {
             if (error) {
                 console.error(stderr);
                 reject()
