@@ -3,7 +3,6 @@ const ImageLibrary = require('./services/ImageLibrary');
 
 sleep = async (ms) => new Promise(r => setTimeout(r, ms));
 const { times, flatten } = require('lodash');
-const gpus = process.env.GPUS;
 const workers = process.env.WORKERS
 ;
 (async () => {
@@ -14,16 +13,8 @@ const workers = process.env.WORKERS
         if (images.length > 0) {
             console.log(`Processing ${images.length}`);
 
-            var jobs = times(workers, () => times(gpus, (gpu) => {
-                return {
-                    gpu: `cuda:${gpu}`,
-                    image: images.pop()
-                }
-            }))
-
-            var jobs = flatten(jobs).filter(j => j.image);
-            console.log('Executing jobs', jobs)
-            await Promise.all(jobs.map(j => imageLibrary.process(j.image, j.gpu)));
+            var jobs = times(workers, () => images.pop());
+            await Promise.all(jobs.map(j => imageLibrary.process(j.image)));
 
             // for (i in images) {
             //     var image = images[i];
