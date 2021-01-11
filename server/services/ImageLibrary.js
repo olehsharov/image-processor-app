@@ -63,7 +63,7 @@ ImageLibrary.prototype.saveSettings  = function(imagePath, settings) {
 }
 
 ImageLibrary.prototype.process = async function(image, gpu) {
-    return new Promise(async (resolve) => {
+    return new Promise(async (resolve, reject) => {
         var start = new Date().getTime();
         var file = image.file;
         var outputFolder = `${this.root}/${file}.background`;
@@ -76,14 +76,20 @@ ImageLibrary.prototype.process = async function(image, gpu) {
     
         console.log(`${file}: background`);
         var foreground = `${outputFolder}/foreground.png`;
-        child_process.exec(`python "server/rembg/remove.py" "${outputFolder}/original.jpg" "${foreground}" ${gpu}`, async () => {
-            var endTime = new Date().getTime() - start;
-            console.log(`${file}: done in ${endTime/100}s`);
-        
-            var settings = JSON.parse(JSON.stringify(defaultSettings));
-            settings.processedTime = endTime;
-            fs.writeFileSync(`${outputFolder}/settings.json`, JSON.stringify(settings));
-            resolve()
+        child_process.exec(`python "server/rembg/remove.py" "${outputFolder}/original.jpg" "${foreground}" ${gpu}`, async (error, stderr, stdout) => {
+            if (error) {
+                console.error(stderr);
+                reject()
+            } else {
+                console.log(stdout);
+                var endTime = new Date().getTime() - start;
+                console.log(`${file}: done in ${endTime/100}s`);
+            
+                var settings = JSON.parse(JSON.stringify(defaultSettings));
+                settings.processedTime = endTime;
+                fs.writeFileSync(`${outputFolder}/settings.json`, JSON.stringify(settings));
+                resolve()
+            }
         });
     });
 }
