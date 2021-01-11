@@ -62,11 +62,12 @@ ImageLibrary.prototype.saveSettings  = function(imagePath, settings) {
     fs.writeFileSync(`${imagePath}.background/settings.json`, JSON.stringify(object, null, 2));
 }
 
-ImageLibrary.prototype.process = async function(image) {
+ImageLibrary.prototype.process = function(image) {
     return new Promise(async (resolve, reject) => {
         var start = new Date().getTime();
         var file = image.file;
         var outputFolder = `${this.root}/${file}.background`;
+
         if (!fs.existsSync(outputFolder)) {
             fs.mkdirSync(outputFolder);
         }
@@ -81,15 +82,15 @@ ImageLibrary.prototype.process = async function(image) {
         child_process.exec(command, (error, stderr, stdout) => {
             if (error) {
                 console.error(stderr);
-                reject(stderr)
+                reject(error);
             } else {
                 var endTime = new Date().getTime() - start;
                 console.log(`${file}: done in ${endTime/100}s`);
-            
+
                 var settings = JSON.parse(JSON.stringify(defaultSettings));
                 settings.processedTime = endTime;
                 fs.writeFileSync(`${outputFolder}/settings.json`, JSON.stringify(settings));
-                resolve(stdout)
+                resolve(stdout);
             }
         });
     });

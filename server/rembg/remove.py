@@ -78,7 +78,6 @@ def get_model(model_name):
 
 def remove(
     input,
-    gpu=0,
     model_name="u2net",
     alpha_matting=False,
     alpha_matting_foreground_threshold=240,
@@ -114,11 +113,10 @@ def remove(
 
 input = sys.argv[1]
 output = sys.argv[2]
-gpu = sys.argv[3]
 
 if (not(input) or not(output)):
     print('Need in and output')
     exit(1)
 f = open(output,"wb")
-f.write(remove(input, gpu=gpu, alpha_matting=True).tobytes())
+f.write(remove(input, alpha_matting=True).tobytes())
 f.close()
