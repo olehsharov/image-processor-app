@@ -2,7 +2,7 @@ require('dotenv').config();
 const ImageLibrary = require('./services/ImageLibrary');
 
 sleep = async (ms) => new Promise(r => setTimeout(r, ms));
-
+const { times, flatten } = require('lodash');
 const GPUS = process.env.GPUS;
 const WORKERS = process.env.WORKERS
 ;
