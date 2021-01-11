@@ -62,7 +62,7 @@ ImageLibrary.prototype.saveSettings  = function(imagePath, settings) {
     fs.writeFileSync(`${imagePath}.background/settings.json`, JSON.stringify(object, null, 2));
 }
 
-ImageLibrary.prototype.process = async function(image) {
+ImageLibrary.prototype.process = async function(image, gpu) {
     var start = new Date().getTime();
     var file = image.file;
     var outputFolder = `${this.root}/${file}.background`;
@@ -75,7 +75,7 @@ ImageLibrary.prototype.process = async function(image) {
 
     console.log(`${file}: background`);
     var foreground = `${outputFolder}/foreground.png`;
-    child_process.execSync(`python "server/rembg/remove.py" "${outputFolder}/original.jpg" "${foreground}" -a -ae 15`);
+    child_process.execSync(`python "server/rembg/remove.py" "${outputFolder}/original.jpg" "${foreground}" ${gpu}`);
 
     var endTime = new Date().getTime() - start;
     console.log(`${file}: done in ${endTime/100}s`);

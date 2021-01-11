@@ -8,7 +8,7 @@ from pymatting.alpha.estimate_alpha_cf import estimate_alpha_cf
 from pymatting.foreground.estimate_foreground_ml import estimate_foreground_ml
 from pymatting.util.util import stack_images
 from scipy.ndimage.morphology import binary_erosion
-
+import torch
 from u2net import detect
 
 def alpha_matting_cutout(
@@ -78,6 +78,7 @@ def get_model(model_name):
 
 def remove(
     input,
+    gpu=0,
     model_name="u2net",
     alpha_matting=False,
     alpha_matting_foreground_threshold=240,
@@ -85,6 +86,10 @@ def remove(
     alpha_matting_erode_structure_size=10,
 ):
     model = get_model(model_name)
+
+    if (torch.cuda.device_count() > 0):
+        model.cuda(gpu)
+
     img = Image.open(input).convert("RGB")
     mask = detect.predict(model, np.array(img)).convert("L")
 
@@ -108,6 +113,7 @@ def remove(
 
 input = sys.argv[1]
 output = sys.argv[2]
+gpu = sys.argv[3]
 
 if (not(input) or not(output)):
     print('Need in and output')
