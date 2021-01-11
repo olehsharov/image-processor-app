@@ -21,10 +21,10 @@ const workers = process.env.WORKERS
                 }
             }))
 
-            var jobs = flatten(jobs).filter(j => j.file);
+            var jobs = flatten(jobs).filter(j => j.image);
             console.log('Executing jobs', jobs)
             await Promise.all(jobs.map(j => imageLibrary.process(j.image, j.gpu)));
-            
+
             // for (i in images) {
             //     var image = images[i];
             //     await imageLibrary.process(image);
