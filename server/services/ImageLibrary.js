@@ -64,35 +64,39 @@ ImageLibrary.prototype.saveSettings  = function(imagePath, settings) {
 
 ImageLibrary.prototype.process = function(image) {
     return new Promise(async (resolve, reject) => {
-        var start = new Date().getTime();
-        var file = image.file;
-        var outputFolder = `${this.root}/${file}.background`;
+        try {
+            var start = new Date().getTime();
+            var file = image.file;
+            var outputFolder = `${this.root}/${file}.background`;
 
-        if (!fs.existsSync(outputFolder)) {
-            fs.mkdirSync(outputFolder);
-        }
-    
-        console.log(`${file}: original`);
-        await sharp(`${this.root}/${file}`).rotate().toFile(`${outputFolder}/original.jpg`);
-    
-        console.log(`${file}: background`);
-        var foreground = `${outputFolder}/foreground.png`;
-        var command = `python "server/rembg/remove.py" "${outputFolder}/original.jpg" "${foreground}"`
-        console.log(command);
-        child_process.exec(command, (error, stderr, stdout) => {
-            if (error) {
-                console.error(stderr);
-                reject(error);
-            } else {
-                var endTime = new Date().getTime() - start;
-                console.log(`${file}: done in ${endTime/100}s`);
-
-                var settings = JSON.parse(JSON.stringify(defaultSettings));
-                settings.processedTime = endTime;
-                fs.writeFileSync(`${outputFolder}/settings.json`, JSON.stringify(settings));
-                resolve(stdout);
+            if (!fs.existsSync(outputFolder)) {
+                fs.mkdirSync(outputFolder);
             }
-        });
+        
+            console.log(`${file}: original`);
+            await sharp(`${this.root}/${file}`).rotate().toFile(`${outputFolder}/original.jpg`);
+        
+            console.log(`${file}: background`);
+            var foreground = `${outputFolder}/foreground.png`;
+            var command = `python "server/rembg/remove.py" "${outputFolder}/original.jpg" "${foreground}"`
+            console.log(command);
+            child_process.exec(command, (error, stderr, stdout) => {
+                if (error) {
+                    console.error(stderr);
+                    reject(error);
+                } else {
+                    var endTime = new Date().getTime() - start;
+                    console.log(`${file}: done in ${endTime/100}s`);
+
+                    var settings = JSON.parse(JSON.stringify(defaultSettings));
+                    settings.processedTime = endTime;
+                    fs.writeFileSync(`${outputFolder}/settings.json`, JSON.stringify(settings));
+                    resolve(stdout);
+                }
+            });
+        } catch (err) {
+            reject(err);
+        }
     });
 }
 
