@@ -11,7 +11,7 @@ function ImageLibrary(folder) {
 
 ImageLibrary.prototype.list = function() {
     var files = fs.readdirSync(this.root)
-        .filter(f => f.startsWith(".") && (f.toLowerCase().endsWith('jpg') || f.toLowerCase().endsWith('jpeg')))
+        .filter(f => !f.startsWith(".") && (f.toLowerCase().endsWith('jpg') || f.toLowerCase().endsWith('jpeg')))
         .sort((a, b) => fs.statSync(`${this.root}/${b}`).mtime.getTime() - fs.statSync(`${this.root}/${a}`).mtime.getTime());
 
     var result = [];
