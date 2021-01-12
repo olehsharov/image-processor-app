@@ -15,9 +15,9 @@
     "watch": "concurrently \"npm run watch:client\" \"npm run watch:server\"",
     "watch:client": "parcel watch client/index.html --out-dir build",
     "watch:server": "nodemon server/main.js --ignore client/ --ignore build/ --ignore test-data/",
-    "worker": "node server/worker.js",
     "build": "npm run clean && npm install && parcel build client/index.html --out-dir build",
-    "start": "concurrently \"node server/main.js\" \"node server/worker.js\""
+    "worker": "node_modules/.bin/forever server/worker.js ",
+    "server": "node server/main.js"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.27",
@@ -28,6 +28,7 @@
     "dotenv": "^8.2.0",
     "exif-js": "^2.3.0",
     "express": "^4.17.1",
+    "forever": "^3.0.4",
     "global": "^4.4.0",
     "lodash": "^4.17.20",
     "object-hash": "^2.1.1",
