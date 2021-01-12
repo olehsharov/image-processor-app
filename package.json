@@ -16,7 +16,7 @@
     "watch:client": "parcel watch client/index.html --out-dir build",
     "watch:server": "nodemon server/main.js --ignore client/ --ignore build/ --ignore test-data/",
     "build": "npm run clean && npm install && parcel build client/index.html --out-dir build",
-    "worker": "node_modules/.bin/forever server/worker.js ",
+    "worker": "node server/workerMain.js ",
     "server": "node server/main.js"
   },
   "dependencies": {
