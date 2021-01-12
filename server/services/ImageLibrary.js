@@ -11,7 +11,7 @@ function ImageLibrary(folder) {
 
 ImageLibrary.prototype.list = function() {
     var files = fs.readdirSync(this.root)
-        .filter(f => f.toLowerCase().endsWith('jpg') || f.toLowerCase().endsWith('jpeg'))
+        .filter(f => f.startsWith(".") && (f.toLowerCase().endsWith('jpg') || f.toLowerCase().endsWith('jpeg')))
         .sort((a, b) => fs.statSync(`${this.root}/${b}`).mtime.getTime() - fs.statSync(`${this.root}/${a}`).mtime.getTime());
 
     var result = [];
@@ -74,7 +74,13 @@ ImageLibrary.prototype.process = function(image) {
             }
         
             console.log(`${file}: original`);
-            await sharp(`${this.root}/${file}`).rotate().toFile(`${outputFolder}/original.jpg`);
+            try {
+                await sharp(`${this.root}/${file}`).rotate().toFile(`${outputFolder}/original.jpg`);
+            } catch (err) {
+                console.error('Cant read file', file)
+                console.error(err)
+                return;
+            }
         
             console.log(`${file}: background`);
             var foreground = `${outputFolder}/foreground.png`;
