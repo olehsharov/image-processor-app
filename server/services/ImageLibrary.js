@@ -88,7 +88,7 @@ ImageLibrary.prototype.process = function(image) {
             console.log(command);
             child_process.exec(command, (error, stderr, stdout) => {
                 if (error) {
-                    fs.rmdirSync(outputFolder);
+                    fs.rmdirSync(outputFolder, {recursive:true});
                     fs.renameSync(`${this.root}/${file}`, `${this.root}/${file}.failed`);
                     console.error(error, stderr);
                     // reject(error);
