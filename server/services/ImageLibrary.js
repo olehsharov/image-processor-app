@@ -11,7 +11,7 @@ function ImageLibrary(folder) {
 
 ImageLibrary.prototype.list = function() {
     var files = fs.readdirSync(this.root)
-        .filter(f => !f.startsWith(".") && (f.toLowerCase().endsWith('jpg') || f.toLowerCase().endsWith('jpeg')))
+        .filter(f => !f.includes("failed") && !f.startsWith(".") && (f.toLowerCase().endsWith('jpg') || f.toLowerCase().endsWith('jpeg')))
         .sort((a, b) => fs.statSync(`${this.root}/${b}`).mtime.getTime() - fs.statSync(`${this.root}/${a}`).mtime.getTime());
 
     var result = [];
@@ -88,12 +88,13 @@ ImageLibrary.prototype.process = function(image) {
             console.log(command);
             child_process.exec(command, (error, stderr, stdout) => {
                 if (error) {
-                    console.error(stderr);
-                    reject(error);
+                    fs.rmdirSync(outputFolder);
+                    fs.renameSync(`${this.root}/${file}`, `${this.root}/${file}.failed`);
+                    console.error(error, stderr);
+                    // reject(error);
                 } else {
                     var endTime = new Date().getTime() - start;
                     console.log(`${file}: done in ${endTime/100}s`);
-
                     var settings = JSON.parse(JSON.stringify(defaultSettings));
                     settings.processedTime = endTime;
                     fs.writeFileSync(`${outputFolder}/settings.json`, JSON.stringify(settings));
