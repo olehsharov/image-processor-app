@@ -9,13 +9,15 @@ ImageLibrary.prototype.list = async function(folder) {
 ImageLibrary.prototype.orientation = async function(file) {
 }
 
-ImageLibrary.prototype.get = async function(imagePath) {
+ImageLibrary.prototype.get = async function(imageId) {
+    return await (await fetch(`/images/${imageId}`)).json();
 }
 
 ImageLibrary.prototype.saveSettings  = function(imagePath, settings) {
 }
 
-ImageLibrary.prototype.exportImage = async function(element, imagePath) {
+ImageLibrary.prototype.exportImage = async function(imageId) {
+    return await fetch(`/images/export/${imageId}`);
 }
 
 

@@ -18,7 +18,10 @@
             <a href="#" class="original" @click="() => mode = 'original'">Оригинал</a>&nbsp;{{image && image.settings ? '|' : ''}}&nbsp;<a href="#" v-if="image && image.settings" class="edited" @click="() => mode = 'edited'">Ретушь</a>
           </div>
           <div slot="action" class="flex">
-            <button class="btn btn-xs btn-dark" v-if="image && image.settings" @click="() => exportImage()">Експорт</button>
+            <button class="btn btn-xs btn-dark w-24 flex justify-center" v-if="image && image.settings" @click="() => exportImage()">
+              <Loading v-if="exporting == image.file" class="w-4 h-4"></Loading>
+              <span v-else>Експорт</span>
+            </button>
           </div>
         </Heading>
         <div class="p-6 bg-white flex-grow" ref="image">
@@ -28,24 +31,7 @@
             </div>
           </div>
           <div class="aspect-ratio-square overflow-hidden relative" v-if="image && image.settings && mode=='edited'" style="background: #f7f7f7" >
-            <div class="absolute flex justify-center items-center  inset-0" :style="transformStyles">
-              
-              <Layer class="absolute flex justify-center items-center inset-0" :settings="image.settings.backgroundSettings" :orientation="image.orientation">
-                <ImageLayer class="absolute h-full" :src="`/images/${image.file}/original`" ></ImageLayer>
-                <ImageLayer class="absolute  h-full" :src="`/images/${image.file}/foreground`" :settings="{blend: 'difference', filters: { contrast: {value: '-10'}, blur: { value: '1'}} }"></ImageLayer>
-              </Layer>
-              <GradientLayer class="absolute inset-0 -m-2" :settings="image.settings.maskSettings" :transform="image.settings.transform"></GradientLayer>
-              <Layer class="absolute flex justify-center items-center inset-0" :style="sharpnessStyles" :orientation="image.orientation">
-                <ImageLayer class="absolute  h-full" :src="`/images/${image.file}/foreground`" :settings="image.settings.foregroundSettings" ></ImageLayer>
-              </Layer>
-              <EditBox v-if="image.settings.maskSettings.edit" v-model="image.settings.maskSettings.gradient" :transform="image.settings.transform"></EditBox>
-              <svg>
-                <filter :id="sharpenssId">
-                  <feConvolveMatrix :order="sharpnessOrder" :kernelMatrix="sharpnessMatrix" preserveAlpha="false"/>
-                </filter>
-              </svg>
-
-            </div>
+            <CssRenderer v-model="image"></CssRenderer>
           </div>
         </div>
       </div>
@@ -54,7 +40,6 @@
         <div class="flex-grow relative" >
           <div class="absolute inset-0 overflow-y-scroll" v-if="image && image.settings">
               <LayersSimpleSettings v-model="image.settings"></LayersSimpleSettings>
-              <Slider min=0 max=0.7 :value="sharpness" @input="(v) => $set(image.settings, 'sharpness', v)" step=0.001 class="mx-8" title="Резкость"></Slider>
           </div>
         </div>
       </div>
@@ -73,21 +58,18 @@
 
 import {throttle} from 'lodash';
 import imageLibrary from './services/ImageLibrary';
-import Library from './components/Library';
 import Heading from './components/Heading';
-import ImageLayer from './components/ImageLayer';
 import LayersSimpleSettings from './components/LayersSimpleSettings';
-import LayersAdvancedSettings from './components/LayersAdvancedSettings';
-import EditBox from './components/EditBox';
 import Loading from './components/Loading';
 import FileImage from './components/FileImage';
 import Layer from './components/Layer';
-import GradientLayer from './components/GradientLayer';
 import Slider from './components/Slider';
+import CssRenderer from './components/CssRenderer';
+import Library from './components/Library';
 
 export default {
   name: 'App',
-  components: { Library, Heading, ImageLayer, LayersSimpleSettings, EditBox, Loading, FileImage, Layer, GradientLayer, Slider },
+  components: { Library, CssRenderer, Heading, LayersSimpleSettings, Loading, FileImage, CssRenderer },
   data() {
     return {
       fixing: false,
@@ -97,7 +79,7 @@ export default {
       imagePath: null,
       image: null,
       mode: "original", // edited,
-      export: false,
+      exporting: null
     }
   },
   watch: {
@@ -110,38 +92,6 @@ export default {
       }
     }
   },
-  computed: {
-    sharpness() {
-      return (this.image && this.image.settings && this.image.settings.sharpness) || 0;
-    },
-    sharpnessOrder() {
-      return 3;
-    },
-    sharpnessMatrix() {
-      var s = this.sharpness * -1;
-      var kernel = 
-      [
-        [s, s, s],
-        [s, 7, s],
-        [s, s, s]
-      ]
-      var result = kernel.map(r => r.join(' ')).join(' ');
-      return result;
-    },
-    sharpenssId() {
-        return this.sharpnessMatrix.split(' ').join('');
-    },
-    sharpnessStyles() {
-      return {
-        filter: `url(#${this.sharpenssId})`
-      }
-    },
-    transformStyles() {
-      return {
-        transform: this.image && this.image.settings && `scale(${this.image.settings.transform.scale || 1}) translateX(${(this.image.settings.transform.x || 0) * -100}%) translateY(${(this.image.settings.transform.y || 0) * -100}%)`
-      }
-    }
-  },
   methods: {
     save: throttle(function() {
       if (this.image && this.image.settings) {
@@ -149,9 +99,9 @@ export default {
       }
     }, 1000),
    async exportImage() {
-      this.loading = true;
-      await imageLibrary.exportImage(this.$refs.image, this.image.imagePath);
-      this.loading = false;
+      this.exporting = this.image.file;
+      await imageLibrary.exportImage(this.image.file);
+      this.exporting = null;
     }
   },
   async mounted() {

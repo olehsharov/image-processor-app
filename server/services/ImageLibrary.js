@@ -5,14 +5,15 @@ const child_process = require('child_process');
 const defaultSettings = require('./default_settings');
 const sharp = require('sharp');
 
-function ImageLibrary(folder) {
-    this.root = folder;
+function ImageLibrary(input, output) {
+    this.input = input;
+    this.output = output;
 }
 
 ImageLibrary.prototype.list = function() {
-    var files = fs.readdirSync(this.root)
+    var files = fs.readdirSync(this.input)
         .filter(f => !f.includes("failed") && !f.startsWith(".") && (f.toLowerCase().endsWith('jpg') || f.toLowerCase().endsWith('jpeg')))
-        .sort((a, b) => fs.statSync(`${this.root}/${b}`).mtime.getTime() - fs.statSync(`${this.root}/${a}`).mtime.getTime());
+        .sort((a, b) => fs.statSync(`${this.input}/${b}`).mtime.getTime() - fs.statSync(`${this.input}/${a}`).mtime.getTime());
 
     var result = [];
     for (var f in files) {
@@ -25,7 +26,7 @@ ImageLibrary.prototype.get = function(file) {
     var foreground = null;
     var settings = null;
     
-    var metadataPath = `${this.root}/${file}.background`;
+    var metadataPath = `${this.input}/${file}.background`;
     if (fs.existsSync(metadataPath)) {
         original   =  fs.existsSync(`${metadataPath}/original.jpg`) && `original.jpg`;
         foreground =  fs.existsSync(`${metadataPath}/foreground.png`) && `foreground.png`;
@@ -42,11 +43,11 @@ ImageLibrary.prototype.get = function(file) {
 ImageLibrary.prototype.image = async function(file, type, size, format) {
     var output = null;
     if (type == 'original') { // should read from /${file}.background/original.jpg
-        output = sharp(`${this.root}/${file}`);
+        output = sharp(`${this.input}/${file}`);
     }
 
     if (type == 'foreground') {
-        output = sharp(`${this.root}/${file}.background/foreground.png`);
+        output = sharp(`${this.input}/${file}.background/foreground.png`);
     }
 
     if (output) {
@@ -67,7 +68,7 @@ ImageLibrary.prototype.process = function(image) {
         try {
             var start = new Date().getTime();
             var file = image.file;
-            var outputFolder = `${this.root}/${file}.background`;
+            var outputFolder = `${this.input}/${file}.background`;
 
             if (!fs.existsSync(outputFolder)) {
                 fs.mkdirSync(outputFolder);
@@ -75,7 +76,7 @@ ImageLibrary.prototype.process = function(image) {
         
             console.log(`${file}: original`);
             try {
-                await sharp(`${this.root}/${file}`).rotate().toFile(`${outputFolder}/original.jpg`);
+                await sharp(`${this.input}/${file}`).rotate().toFile(`${outputFolder}/original.jpg`);
             } catch (err) {
                 console.error('Cant read file', file)
                 console.error(err)
@@ -89,7 +90,7 @@ ImageLibrary.prototype.process = function(image) {
             child_process.exec(command, (error, stderr, stdout) => {
                 if (error) {
                     fs.rmdirSync(outputFolder, {recursive:true});
-                    fs.renameSync(`${this.root}/${file}`, `${this.root}/${file}.failed`);
+                    fs.renameSync(`${this.input}/${file}`, `${this.input}/${file}.failed`);
                     console.error(error, stderr);
                     // reject(error);
                 } else {
@@ -107,29 +108,21 @@ ImageLibrary.prototype.process = function(image) {
     });
 }
 
-ImageLibrary.prototype.exportImage = async function(element, imagePath) {
-    var htmlFile = `${path.dirname(imagePath)}/.${path.basename(imagePath)}.html`;
-    var filename = path.basename(imagePath).split('.')[0];
-    var exportFile = `${path.dirname(imagePath)}/${filename}_export.png`;
+ImageLibrary.prototype.export = async function(image) {
+    var filename = path.basename(image, path.extname(image))
+    var exportFile = `${this.output}/${filename}_export.png`;
     const browser = await puppeteer.launch({
         args: ['--no-sandbox', '--disable-setuid-sandbox'], 
         headless: true
     });
     const page = await browser.newPage();
     page.setViewport({width:3000, height: 3000});
-    const css = [...document.styleSheets]
-        .map(styleSheet => [...styleSheet.cssRules].map(rule => rule.cssText).join('\n'))
-        .filter(Boolean)
-        .join('\n');
-    const html = `<style>${css}
-    img { image-orientation: none }
-    </style><body class="w-full h-full">${element.innerHTML}</body>`;
-    fs.writeFileSync(htmlFile, html);
-    await page.goto(`file://${htmlFile}`);
+    await page.goto(`http://localhost:8899/export/${image}`, {
+        waitUntil: "networkidle0",
+        timeout: 0
+    });
     await page.screenshot({path: exportFile,  type: "png"});
     await browser.close();
-
-    shell.showItemInFolder(exportFile);
 }
 
 

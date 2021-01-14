@@ -22,6 +22,17 @@ import Heading from './components/Heading';
 Vue.use(Heading);
 Vue.use(VueRouter);
 
+import EditView from "./EditView";
+import ExportView from "./ExportView";
+
+const router = new VueRouter({
+  mode: 'history',
+  routes: [
+    { path: "/", component: EditView },
+    { path: "/export/:imageId", component: ExportView }
+  ]
+});
+
 import hash from 'object-hash';
 Vue.use({
   install() {
@@ -31,5 +42,6 @@ Vue.use({
 Vue.config.productionTip = false
 
 new Vue({
+  router,
   render: h => h(App),
 }).$mount('#app')
