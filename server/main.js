@@ -33,13 +33,7 @@ app.get('/images/:image', (req, res) => {
 app.post('/images/:image', (req, res) => {
     imageLibrary.saveSettings(req.params.image, req.body)
     res.status(200).send();
-    ///res.send(imageLibrary.get(req.params.image));
 });
-
-app.post('/images/:image', (req, res) => {
-    res.send(200);
-    ///res.send(imageLibrary.get(req.params.image));
-})
 
 app.get('/images/:image/:type', async (req, res) => {
     var size = parseInt(req.query.size);
