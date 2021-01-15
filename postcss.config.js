@@ -11,17 +11,18 @@ const purgecss = require('@fullhuman/postcss-purgecss')({
   
     // Include any special characters you're using in this regular expression
     defaultExtractor: content => content.match(/[\w-/:]+(?<!:)/g) || []
-  })
-  
-  module.exports = {
-    plugins: [
-      require('tailwindcss')('./tailwind.config.js'),
-      require('postcss-pseudo-classes'),
-      require('postcss-apply'),
-      require('autoprefixer'),
-      require('postcss-nested'),
-      ...process.env.NODE_ENV === 'production'
-        ? [purgecss]
-        : []
-    ]
-  }
+});
+
+
+module.exports = {
+  plugins: [
+    require('tailwindcss')('./tailwind.config.js'),
+    require('postcss-pseudo-classes'),
+    require('postcss-apply'),
+    require('autoprefixer'),
+    require('postcss-nested'),
+    ...process.env.NODE_ENV === 'production'
+      ? [purgecss]
+      : []
+  ]
+}
