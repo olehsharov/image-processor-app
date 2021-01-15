@@ -13,6 +13,11 @@ app.listen(PORT, () => {
 });
 
 
+app.use((req, res, next) => {
+    res.header('Content-Security-Policy', "object-src data: 'unsafe-eval'");
+    next();
+})
+
 app.use(express.static('build'));
 
 var imageLibrary = new ImageLibrary(process.env.DATA_FOLDER, process.env.EXPORT_FOLDER);
