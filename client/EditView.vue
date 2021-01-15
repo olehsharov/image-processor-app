@@ -95,7 +95,7 @@ export default {
   methods: {
     save: throttle(function() {
       if (this.image && this.image.settings) {
-        imageLibrary.saveSettings(this.image.imagePath, this.image.settings);
+        imageLibrary.saveSettings(this.image.file, this.image.settings);
       }
     }, 1000),
    async exportImage() {

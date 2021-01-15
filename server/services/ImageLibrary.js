@@ -57,10 +57,10 @@ ImageLibrary.prototype.image = async function(file, type, size, format) {
     }
 }
 
-ImageLibrary.prototype.saveSettings  = function(imagePath, settings) {
+ImageLibrary.prototype.saveSettings  = function(image, settings) {
     var object = JSON.parse(JSON.stringify(settings));
     object.maskSettings.edit = false;
-    fs.writeFileSync(`${imagePath}.background/settings.json`, JSON.stringify(object, null, 2));
+    fs.writeFileSync(`${this.input}/${image}.background/settings.json`, JSON.stringify(object, null, 2));
 }
 
 ImageLibrary.prototype.process = function(image) {
