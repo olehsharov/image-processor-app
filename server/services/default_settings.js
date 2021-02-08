@@ -1,4 +1,5 @@
 module.exports = {
+    "collection": "default",
     "transform": {
       "translateX": 0,
       "translateY": 0,

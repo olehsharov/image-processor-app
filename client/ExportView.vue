@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-greey-400 relative aspect-ratio-square h-full">
+  <div class="bg-greey-400 relative aspect-ratio-square h-full overflow-hidden" style="background: #f7f7f7">
     <CssRenderer v-if="image" v-model="image" class="overflow-hidden"></CssRenderer>
   </div>
 </template>

@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body { 
-  @apply text-gray-800 text-sm; 
+  @apply text-gray-300 text-sm; 
 }
 /* { @apply text-base font-hairline; }*/
 h1 { @apply text-3xl font-bold; }

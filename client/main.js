@@ -6,12 +6,12 @@ import App from './App.vue'
 import './assets/styles.css';
 
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faChevronRight, faChevronDown, faTimes, faChevronLeft, faCrop, faCrosshairs, faUndo } from '@fortawesome/free-solid-svg-icons'
+import { faChevronRight, faChevronDown, faTimes, faChevronLeft, faCrop, faCrosshairs, faUndo, faFolder, faFile, faFolderOpen } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(faUndo);
-library.add(faCrosshairs);
-library.add(faCrop);
+library.add(faFile);
+library.add(faFolder);
+library.add(faFolderOpen);
 library.add(faChevronLeft);
 library.add(faChevronRight);
 library.add(faChevronDown);
@@ -19,16 +19,25 @@ library.add(faTimes);
 
 Vue.component('fa', FontAwesomeIcon)
 import Heading from './components/Heading';
-Vue.use(Heading);
+import Loading from './components/Loading'
+
+Vue.component('Loading', Loading);
+Vue.component('Heading', Heading);
 Vue.use(VueRouter);
 
+import ImportView from './views/ImportView';
+import LibrariesView from './views/LibrariesView';
+import LibraryView from './views/LibraryView';
 import EditView from "./EditView";
 import ExportView from "./ExportView";
 
 const router = new VueRouter({
   mode: 'history',
   routes: [
-    { path: "/", component: EditView },
+    { path: "/", component: LibrariesView },
+    { path: "/library/:name", component: LibraryView },
+    { path: "/library/:name/:import/**", component: ImportView },
+    { path: "/library", component: EditView },
     { path: "/export/:imageId", component: ExportView }
   ]
 });
