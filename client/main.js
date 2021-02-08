@@ -19,6 +19,9 @@ library.add(faTimes);
 
 Vue.component('fa', FontAwesomeIcon)
 
+import autofocus from "vue-autofocus-directive";
+Vue.directive("autofocus", autofocus);
+
 
 import { VLazyImagePlugin } from "v-lazy-image";
 

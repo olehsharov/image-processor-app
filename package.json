@@ -46,6 +46,7 @@
     "uuid": "^8.3.2",
     "v-lazy-image": "^1.4.0",
     "vue": "^2.6.11",
+    "vue-autofocus-directive": "^1.0.4",
     "vue-hot-reload-api": "^2.3.4",
     "vue-img-orientation-changer": "^1.0.11",
     "vue-router": "^3.4.9",

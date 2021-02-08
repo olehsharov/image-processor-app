@@ -3,8 +3,8 @@
         <div class="bg-gray-800 absolute inset-0 z-10 flex items-center justify-center" v-if="loading"><Loading></Loading></div>
         <div class="border-b border-gray-900">
             <div class="text-xs px-4 border-b border-gray-900 flex-grow text-gray-600" v-if="progress < 100">ИМПОРТ {{progress}}%</div>
-            <CollectionDropdown :collections="collectionNames" @select="setCollection($event)" :disabled="selected.length == 0">
-                Колекция
+            <CollectionDropdown :collections="collections" :names="collectionNames" @select="setCollection($event)" :disabled="selected.length == 0" :name="name">
+                Переместить
             </CollectionDropdown>
         </div>
         <div class="flex flex-grow relative">
@@ -13,7 +13,8 @@
                     class="flex flex-col relative cursor-pointer">
                     <div class="flex h-20 border-b border-gray-900 hover:bg-gray-700 w-full" @click="toggleOpen(c)">
                         <div class="px-4 w-20 flex justify-center items-center">
-                            <fa :icon="open[c] ? 'folder-open' : 'folder'" class="fa-2x"></fa>
+                            <!-- <fa :icon="open[c] ? 'folder-open' : 'folder'" class="fa-2x"></fa> -->
+                            <img :src="`/api/libraries/${name}/images/${collections[c][0].image}/thumbnail`">
                         </div>
                         <div class="flex w-full items-center py-3 pr-4">
                             <b>{{c}}</b>
@@ -29,7 +30,7 @@
                             @click.shift="selectRange(img.image)"
                             @click.meta="toggleSelectAdd(img.image)"
                             @click.exact="previewSelect(img.image)">
-                            <img :src="`/api/libraries/${$route.params.name}/images/${img.image}/thumbnail`">
+                            <img :src="`/api/libraries/${name}/images/${img.image}/thumbnail`">
                         </div>
                     </div>
                 </div>

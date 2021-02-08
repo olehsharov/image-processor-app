@@ -241,7 +241,7 @@ class ImageLibrary {
             for (var e in entries) {
                 var file = entries[e];
                 var fileTo   = path.join(this.libraryFolder, library);
-                console.log(file)
+                console.log(file.name)
                 var newFilename = uuid.v1();
                 var input = sharp(file.path).rotate();
                 await Promise.all([
