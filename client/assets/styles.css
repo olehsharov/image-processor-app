@@ -120,7 +120,7 @@ label { @apply text-sm text-gray-600; }
 
 * {
   --scrollbarBG: transparent;
-  --thumbBG: rgb(67,63,71);
+  --thumbBG: rgb(20,20,20);
 }
 *::-webkit-scrollbar {
   width: 6px;
