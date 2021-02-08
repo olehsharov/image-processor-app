@@ -5,13 +5,13 @@
         <Heading>Бобилиотеки</Heading>
         <div class="flex-grow relative">
           <div class="inset-0 absolute overflow-y-auto">
-            <router-link v-for="(l,i) in libraries" 
+            <div v-for="(l,i) in libraries" 
+              @click="click(l.name)"
               :key="i" 
-              class="border-b border-gray-900 px-4 py-3 flex flex-col hover:bg-gray-700 text-gray-400"
-              :to="`/library/${l.name}`">
+              class="border-b border-gray-900 px-4 py-3 flex flex-col hover:bg-gray-700 text-gray-400 cursor-pointer">
               <b>{{l.name}}</b>
               <span class="text-xs">{{new Date(l.ctime).toLocaleString('uk')}}</span>
-            </router-link>
+            </div>
           </div>
         </div>
         <div class="px-4 py-3 flex border-t border-gray-900 ">
@@ -38,6 +38,9 @@ export default {
     this.load();
   },
   methods: {
+    async click(name) {
+      this.$router.push(`/library/${name}`)
+    },
     async load() {
       this.libraries = await library.listLibraries();
       this.loading = false;

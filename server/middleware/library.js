@@ -23,6 +23,12 @@ router.post("/api/libraries", (req, res) => {
 router.get("/api/libraries/:library/images", (req, res) => {
     res.send(library.listImages(req.params.library));
 })
+router.get("/api/libraries/:library/images/isempty", (req, res) => {
+    res.send(library.listImages(req.params.library).length == 0);
+})
+router.get("/api/libraries/:library/importprogress", (req, res) => {
+    res.send(library.importProgress(req.params.library));
+})
 router.get("/api/libraries/:library/images/:image/thumbnail", (req, res) => {
     res.sendFile(library.thumbnail(req.params.library, req.params.image));
 })
@@ -39,14 +45,16 @@ router.get("/api/input/*", (req, res) => {
     var fullPath = path.join(INPUT_FOLDER, queryPath)
     if (fs.existsSync(fullPath)) {
         if (fs.statSync(fullPath).isDirectory()) {
-            var result = fs.readdirSync(fullPath).filter(f => !f.toLocaleLowerCase().startsWith('.')).map(f => {
-                var stats = fs.statSync(path.join(fullPath, f));
-                return {
-                    name: f,
-                    ...stats,
-                    isFile: stats.isFile(),
-                    isImage: (f.toLocaleLowerCase().endsWith('jpg') || f.toLocaleLowerCase().endsWith('jpeg') || f.toLocaleLowerCase().endsWith('png'))
-                }
+            var result = fs.readdirSync(fullPath)
+                .filter(f => !f.toLocaleLowerCase().startsWith('.') && fs.statSync(path.join(fullPath, f)).isDirectory())
+                .map(f => {
+                    var stats = fs.statSync(path.join(fullPath, f));
+                    return {
+                        name: f,
+                        ...stats,
+                        isFile: stats.isFile(),
+                        isImage: false
+                    }
             })
             result = result.sort((a, b) => a.isFile ? 1 : -1);
             res.send(result)

@@ -18,6 +18,12 @@ library.add(faChevronDown);
 library.add(faTimes);
 
 Vue.component('fa', FontAwesomeIcon)
+
+
+import { VLazyImagePlugin } from "v-lazy-image";
+
+Vue.use(VLazyImagePlugin);
+
 import Heading from './components/Heading';
 import Loading from './components/Loading'
 

@@ -2,7 +2,7 @@
   <div class="flex-grow flex items-center justify-center p-12">
     <div class="bg-gray-800 w-full h-full shadow-xl rounded overflow-hidden flex flex-col relative">
         <div class="bg-gray-800 absolute inset-0 z-10 flex items-center justify-center" v-if="loading"><Loading></Loading></div>
-        <Heading>Импортировать</Heading>
+        <Heading>Импортировать<small class="text-gray-700 ml-4">/{{path}}</small></Heading>
         <div class="flex-grow relative">
           <div class="inset-0 absolute overflow-y-auto">
             <router-link 
@@ -33,10 +33,17 @@
                 <router-link v-if="!l.isFile"  :to="`${l.name}/`" class="text-gray-400 absolute inset-0"></router-link>
             </div>
 
+            <div class="h-20 flex w-full relative justify-center items-center" v-if="list && list.length == 0">
+                <span class="text-gray-700">Нет папок</span>
+            </div>
+
           </div>
         </div>
         <div class="px-4 py-3 flex border-t border-gray-900 flex items-center">
-            <div class="flex-grow text-gray-600 text-xs">/{{path}}</div>
+            <router-link :to="`/library/${name}`" class="btn bg-gray-800" @click="importSelected()">
+                Назад
+            </router-link>
+            <div class="w-full"></div>
             <button class="btn" :disabled="!path" @click="importSelected()">
                 Импортировать
             </button>
@@ -54,8 +61,7 @@ export default {
         return {
             path: null,
             loading: true,
-            list: null,
-            name: null
+            list: null
         }
     },
     watch: {
@@ -68,6 +74,9 @@ export default {
         }
     },
     computed: {
+        name() {
+            return this.$route.params.name;
+        },
         back() {
             if (this.path) {
                 var pathTokens = this.$route.fullPath.split('/').filter(t => t);
@@ -90,8 +99,8 @@ export default {
         },
         async importSelected() {
             this.loading = true;
-            await library.importFolder(this.$route.params.name, this.path);
-            this.$router.push(`/library/${this.$route.params.name}`)
+            await library.importFolder(this.name, this.path);
+            this.$router.push(`/library/${this.name}`)
             this.loading = false;
         }
     }

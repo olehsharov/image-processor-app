@@ -33,6 +33,12 @@ export default new class ImageLibrary {
     async listImages(library) {
         return await (await fetch(`/api/libraries/${library}/images`)).json();
     }
+    async progress(library) {
+        return await (await fetch(`/api/libraries/${library}/importprogress`)).json();
+    }
+    async isEmpty(library) {
+        return await (await fetch(`/api/libraries/${library}/images/isempty`)).json();
+    }
     async saveCollection(library, collection, files) {
         await (await fetch(`/api/libraries/${library}/collections`, {
             method: 'post',

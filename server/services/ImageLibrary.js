@@ -161,6 +161,17 @@ class ImageLibrary {
     listImages(name) {
         return this.populateName(name, this.listFiles(name));
     }
+    importProgress(name) {
+        var total = fs.readdirSync(path.join(this.libraryFolder, name))
+            .filter(f => f.startsWith('import'))
+            .map(f => JSON.parse(fs.readFileSync(path.join(this.libraryFolder, name, f))))
+            .reduce((a,b) => a + b.files, 0);
+        var imported = this.listFiles(name).length;
+        return {
+            total: total,
+            imported: imported
+        };
+    }
     libraryExists(name) {
         return fs.existsSync(path.join(this.libraryFolder, name));
     }
@@ -209,6 +220,15 @@ class ImageLibrary {
 
             var entries = walk.walkSync(folder, { entryFilter: e => e.name.toLocaleLowerCase().endsWith('jpg') || e.name.toLocaleLowerCase().endsWith('jpeg') })
             console.log(`[${folder}]: importing ${entries.length} files`);
+            
+            var importInfoFile   = path.join(this.libraryFolder, library, `import_${uuid.v1()}.json`);
+            fs.writeFileSync(importInfoFile, JSON.stringify(
+                {
+                    folder: folder,
+                    files: entries.length
+                }
+            ));
+
             for (var e in entries) {
                 var file = entries[e];
                 var fileTo   = path.join(this.libraryFolder, library);

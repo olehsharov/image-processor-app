@@ -3,6 +3,11 @@
         <div class="min-w-128 flex flex-col bg-gray-800 m-4 rounded overflow-hidden">
             <Heading>Библиотека</Heading>
             <Library :name="$route.params.name" @select="loadImage($event)"></Library>
+            <div class="border-t border-gray-900 px-4 py-3 flex">
+                <router-link class="btn" :to="`/`">Библиотеки</router-link>
+                <div class="flex-grow"></div>
+                <router-link class="btn" :to="`/library/${name}/import/`">Импорировать</router-link>
+            </div>
         </div>
         <div class="flex-grow flex flex-col bg-gray-800 my-4 rounded overflow-hidden">
             <Heading>Фото</Heading>
@@ -30,6 +35,11 @@ export default {
     data() {
         return {
             selected: null
+        }
+    },
+    computed: {
+        name() {
+            return this.$route.params.name;
         }
     },
     methods: {

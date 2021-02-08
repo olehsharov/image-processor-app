@@ -1,0 +1,5 @@
+- lazy load images
+x goto import after creating library
+- import progress
+x import button
+x shift select range
