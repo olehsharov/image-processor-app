@@ -16,7 +16,8 @@
     "watch:client": "parcel watch client/index.html --out-dir build",
     "watch:server": "nodemon server/main.js --ignore client/ --ignore build/ --ignore test-data/",
     "build": "npm run clean && npm install && parcel build client/index.html --out-dir build",
-    "worker:import": "nodemon server/importWorker.js",
+    "dev_worker:import": "nodemon server/importWorker.js",
+    "worker:import": "node server/importWorker.js",
     "worker": "node server/workerMain.js ",
     "server": "node server/main.js"
   },
