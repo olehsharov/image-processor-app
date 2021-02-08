@@ -93,11 +93,14 @@ export default {
             if (!this.preview) {
                 this.previewSelect(img);
             } else {
-                var startIndex = this.images.findIndex(image => image.image == this.preview);
-                var endIndex   = this.images.findIndex(image => image.image == img);
+                var baseImage  = this.images.find(image => image.image == this.preview);
+                var images = this.collections[baseImage.metadata.collection];
+
+                var startIndex = images.findIndex(image => image.image == this.preview);
+                var endIndex   = images.findIndex(image => image.image == img);
 
                 for (var i = Math.min(startIndex, endIndex); i <= Math.max(startIndex, endIndex); i++) {
-                    this.selected.push(this.images[i].image)
+                    this.selected.push(images[i].image)
                 }
             }
         },
