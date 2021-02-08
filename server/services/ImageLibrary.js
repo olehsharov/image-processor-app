@@ -218,7 +218,10 @@ class ImageLibrary {
                 throw new Error(`Error: ${folder} does not exist`);
             }
 
-            var entries = walk.walkSync(folder, { entryFilter: e => e.name.toLocaleLowerCase().endsWith('jpg') || e.name.toLocaleLowerCase().endsWith('jpeg') })
+            var entries = walk.walkSync(folder, { 
+                entryFilter: e => e.name.toLocaleLowerCase().endsWith('jpg') || e.name.toLocaleLowerCase().endsWith('jpeg'),
+                stats: true
+            })
             console.log(`[${folder}]: importing ${entries.length} files`);
             
             var importInfoFile   = path.join(this.libraryFolder, library, `import_${uuid.v1()}.json`);
@@ -230,8 +233,8 @@ class ImageLibrary {
             ));
 
             entries = entries.sort((a, b) => {
-                if (a.file > b.file) return -1;
-                if (b.file > a.file) return 1;
+                if (a.stats.ctimeMs > b.stats.ctimeMs) return 1;
+                if (b.stats.ctimeMs > a.stats.ctimeMs) return -1;
                 return 0;
             })
 
