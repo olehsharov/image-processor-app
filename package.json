@@ -18,7 +18,7 @@
     "build": "npm run clean && npm install && parcel build client/index.html --out-dir build",
     "dev_worker:import": "nodemon server/importWorker.js",
     "worker:import": "node server/importWorker.js",
-    "worker": "node server/workerMain.js ",
+    "worker": "concurrently \"npm run worker:import\" ",
     "server": "node server/main.js"
   },
   "dependencies": {
