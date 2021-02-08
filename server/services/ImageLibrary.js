@@ -229,6 +229,12 @@ class ImageLibrary {
                 }
             ));
 
+            entries = entries.sort((a, b) => {
+                if (a.file > b.file) return -1;
+                if (b.file > a.file) return 1;
+                return 0;
+            })
+
             for (var e in entries) {
                 var file = entries[e];
                 var fileTo   = path.join(this.libraryFolder, library);
