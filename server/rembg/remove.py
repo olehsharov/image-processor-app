@@ -84,7 +84,7 @@ def remove(
     model_name="u2net",
     alpha_matting=False,
     alpha_matting_foreground_threshold=250,
-    alpha_matting_background_threshold=150,
+    alpha_matting_background_threshold=15,
     alpha_matting_erode_structure_size=0,
 ):
     model = get_model(model_name)
