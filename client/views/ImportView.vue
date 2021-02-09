@@ -11,7 +11,6 @@
               :to="back">
               <fa icon="chevron-left"></fa>
             </router-link>
-
             <div 
                 v-for="l in list" 
                 :key="l.name" 
@@ -94,7 +93,7 @@ export default {
     methods: {
         async load() {
             this.loading = true;
-            this.list = await library.listDir('input', this.path);
+            this.list = await (await library.listDir('input', this.path)).json();
             this.loading = false;
         },
         async importSelected() {
