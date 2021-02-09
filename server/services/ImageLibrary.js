@@ -246,6 +246,7 @@ class ImageLibrary {
         await page.screenshot({path: exportFile,  type: "png"});
         await browser.close();
         imageMetadata.exported = true;
+        imageMetadata.exporting = false;
         this.writeImageMetadata(library, image, imageMetadata);
     }
 }

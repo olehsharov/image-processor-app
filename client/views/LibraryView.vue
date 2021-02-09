@@ -26,8 +26,8 @@
                     <div class="w-full"></div>
                     <button class="btn w-12" @click="exportImages()">
                         &nbsp;
-                        <fa v-if="!metadata.exporting" icon="image" :class="{'text-orange-400' : metadata.exported}"></fa>
-                        <Loading v-if="metadata.exporting" class="text-gray-800"></Loading>
+                        <fa v-if="metadata.exported" icon="image" :class="{'text-orange-400' : metadata.exported}"></fa>
+                        <Loading v-if="!metadata.exported && metadata.exporting" class="text-gray-800"></Loading>
                         &nbsp;
                     </button>
                 </div>
@@ -44,6 +44,7 @@
     </div>
 </template>
 <script>
+import {uniq} from 'lodash';
 import {throttle} from 'lodash';
 import CssRenderer from '../components/CssRenderer'
 import LayersSimpleSettings from '../components/LayersSimpleSettings'
@@ -85,7 +86,7 @@ export default {
         }, 1000),
         async exportImages() {
             this.$set(this.metadata, 'exporting', true)
-            await imageLibrary.exportImages(this.name, [this.preview, ...this.selected]);
+            await imageLibrary.exportImages(this.name, uniq([this.preview, ...this.selected]));
         },
         async saveForegroundSettings(settings) {
             this.loading = true;

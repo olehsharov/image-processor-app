@@ -147,7 +147,13 @@ export default {
                 var endIndex   = images.findIndex(image => image.image == img);
 
                 for (var i = Math.min(startIndex, endIndex); i <= Math.max(startIndex, endIndex); i++) {
-                    this.selected.push(images[i].image)
+                    if (this.showStarred) {
+                        if (images[i].metadata.starred) {
+                            this.selected.push(images[i].image)
+                        }
+                    } else {
+                        this.selected.push(images[i].image)
+                    }
                 }
             }
             this.hasStars = this.isSelectionStarred();
