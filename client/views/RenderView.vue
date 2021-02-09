@@ -23,8 +23,9 @@ export default {
     }
   },
   async mounted() {
-    this.metadata = await imageLibrary.imageMetadata(this.$route.params.name, this.$route.params.image)
-    console.log(this.metadata)
+    var meta = await imageLibrary.imageMetadata(this.$route.params.name, this.$route.params.image)
+    meta.maskSettings.edit = false;
+    this.metadata = meta;
   }
 }
 </script>
