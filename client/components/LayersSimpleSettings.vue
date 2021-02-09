@@ -7,7 +7,11 @@
             <Slider title="Горизонталь" :min=-0.5 :max=0.5  :step=0.001 v-model="value.transform.x" :defaultValue="0"></Slider>
         </SettingsBlock>
         <SettingsBlock title="Тень">
-           <button class="btn btn-xs btn-dark" @click="() => toggleEditMask()"><fa icon="crosshairs"></fa>&nbsp;&nbsp;Редактировать</button>
+           <div class="flex">
+            <button class="btn btn-xs btn-dark mr-2" :disabled="value.maskSettings.off" @click="() => toggleEditMask()"><fa icon="crosshairs"></fa>&nbsp;&nbsp;Редактировать</button>
+            <button class="btn btn-xs btn-dark" v-if="!value.maskSettings.off" @click="() => toggleMask()">Выключить</button>
+            <button class="btn btn-xs btn-dark" v-if="value.maskSettings.off == true" @click="() => toggleMask()">Включить</button>
+           </div>
            <Slider title="Размытие" 
                 :max="value.backgroundSettings.filters['blur'].max" 
                 :min="value.backgroundSettings.filters['blur'].min" 
@@ -100,6 +104,9 @@ export default {
                 sharpness: this.value.sharpness,
                 foregroundSettings: Object.assign({}, this.value.foregroundSettings)
             })
+        },
+        toggleMask() {
+            this.$set(this.value.maskSettings, 'off', !this.value.maskSettings.off);
         },
         toggleEditMask() {
             this.$set(this.value.maskSettings, 'edit', !this.value.maskSettings.edit);

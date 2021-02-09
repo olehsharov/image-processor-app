@@ -26,7 +26,7 @@
                     <div class="w-full"></div>
                     <button class="btn w-12" @click="exportImages()">
                         &nbsp;
-                        <fa v-if="metadata.exported" icon="image" :class="{'text-orange-400' : metadata.exported}"></fa>
+                        <fa v-if="!metadata.exporting" icon="image" :class="{'text-orange-400' : metadata.exported}"></fa>
                         <Loading v-if="!metadata.exported && metadata.exporting" class="text-gray-800"></Loading>
                         &nbsp;
                     </button>

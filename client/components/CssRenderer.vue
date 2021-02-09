@@ -4,7 +4,7 @@
             <ImageLayer class="absolute h-full" :src="`/api/libraries/${library}/images/${image}`" @load="imageLoaded()"></ImageLayer>
             <ImageLayer class="absolute  h-full" :src="`/api/libraries/${library}/images/${image}/foreground`" @load="imageLoaded()" :settings="{blend: 'difference', filters: { contrast: {value: '-10'}, blur: { value: '1'}} }"></ImageLayer>
         </Layer>
-        <GradientLayer v-if="value && value.processed" class="absolute inset-0 -m-2" :settings="value.maskSettings" :transform="value.transform"></GradientLayer>
+        <GradientLayer v-if="value && value.processed && !value.maskSettings.off" class="absolute inset-0 -m-2" :settings="value.maskSettings" :transform="value.transform"></GradientLayer>
         <Layer v-if="value && value.processed" class="absolute flex justify-center items-center inset-0" :style="sharpnessStyles" >
             <ImageLayer class="absolute  h-full" :src="`/api/libraries/${library}/images/${image}/foreground`" @load="imageLoaded()" :settings="value.foregroundSettings" ></ImageLayer>
         </Layer>
@@ -12,6 +12,9 @@
             <ImageLayer class="absolute h-full" :src="`/api/libraries/${library}/images/${image}`"  @load="imageLoaded()" :settings="value.foregroundSettings"></ImageLayer>
         </Layer>
         <EditBox v-if="value && value.processed & value.maskSettings.edit" v-model="value.maskSettings.gradient" :transform="value.transform"></EditBox>
+        <Layer v-if="value.maskSettings.off" class="absolute flex justify-center items-center inset-0" :style="sharpnessStyles" >
+            <ImageLayer class="absolute h-full" :src="`/api/libraries/${library}/images/${image}`" @load="imageLoaded()" :settings="value.foregroundSettings"></ImageLayer>
+        </Layer>
         <svg>
             <filter :id="sharpenssId">
                 <feConvolveMatrix :order="sharpnessOrder" :kernelMatrix="sharpnessMatrix" preserveAlpha="false"/>
@@ -86,7 +89,7 @@ export default {
             return 1;
         },
         imagesToLoad() {
-            return this.value.processed ? 3 : 1;
+            return this.value.processed  ? 3 : 1;
         },
         sharpness() {
             return (this.value && this.value && this.value.sharpness) || 0;
