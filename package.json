@@ -19,7 +19,8 @@
     "dev_worker:import": "nodemon server/importWorker.js",
     "worker:import": "node server/importWorker.js",
     "worker:rembg": "node server/rembgWorker.js",
-    "worker": "concurrently \"npm run worker:import\" \"npm run worker:rembg\" ",
+    "worker:export": "node server/exportWorker.js",
+    "worker": "concurrently \"npm run worker:import\" \"npm run worker:rembg\" \"npm run worker:export\"",
     "server": "node server/main.js"
   },
   "dependencies": {

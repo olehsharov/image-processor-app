@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col p-4" v-if="value">
+    <div class="flex flex-col" v-if="value">
         <SettingsBlock title="Кроп">
             <Slider title="Зум" :min=0.5 :max=2  :step=0.001  v-model="value.transform.scale" :defaultValue="1"></Slider>
             <Slider title="Горизонт" :min=-45 :max=45  :step=0.1  v-model="value.transform.rotate" :defaultValue="0"></Slider>

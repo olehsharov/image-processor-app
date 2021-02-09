@@ -13,14 +13,32 @@
             <Heading>Фото<div class="w-full"></div><Loading v-if="metadata && (metadata.starred && !metadata.processed)"></Loading></Heading>
             <div class="p-6 bg-white flex flex-col flex-grow">
                 <div class="aspect-ratio-square overflow-hidden relative text-gray-800" v-if="metadata" style="background: #f7f7f7" >
-                    <CssRenderer v-model="metadata" :library="$route.params.name" :image="preview"></CssRenderer>
+                    <CssRenderer v-model="metadata" 
+                        :library="$route.params.name" 
+                        :image="preview"></CssRenderer>
                 </div>
             </div>
         </div>
         <div class="min-w-96 flex flex-col bg-gray-800 m-4 rounded overflow-hidden">
             <Heading>Ретушь</Heading>
+            <div class="border-b py-3 border-gray-900 flex flex-col" v-if="metadata">
+                <div class="flex items-center px-4">
+                    <div class="w-full"></div>
+                    <button class="btn w-12" @click="exportImages()">
+                        &nbsp;
+                        <fa v-if="!metadata.exporting" icon="image" :class="{'text-orange-400' : metadata.exported}"></fa>
+                        <Loading v-if="metadata.exporting" class="text-gray-800"></Loading>
+                        &nbsp;
+                    </button>
+                </div>
+            </div>
             <div class="flex-grow relative">
-                <LayersSimpleSettings class="absolute inset-0 overflow-y-auto" v-model="metadata" :selected="selected" @foreground="saveForegroundSettings($event)"></LayersSimpleSettings>
+                <LayersSimpleSettings 
+                    class="absolute inset-0 overflow-y-auto" 
+                    v-model="metadata" 
+                    :selected="selected" 
+                    @foreground="saveForegroundSettings($event)"
+                    @export="exportImages()"></LayersSimpleSettings>
             </div>
         </div>
     </div>
@@ -65,6 +83,10 @@ export default {
                 imageLibrary.saveMetadata(this.name, this.preview, this.metadata);
             }
         }, 1000),
+        async exportImages() {
+            this.$set(this.metadata, 'exporting', true)
+            await imageLibrary.exportImages(this.name, [this.preview, ...this.selected]);
+        },
         async saveForegroundSettings(settings) {
             this.loading = true;
             await imageLibrary.saveForegroundSettings(this.name, this.selected, settings);

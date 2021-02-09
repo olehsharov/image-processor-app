@@ -6,11 +6,10 @@ import App from './App.vue'
 import './assets/styles.css';
 
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faChevronRight, faChevronDown, faTimes, faChevronLeft, faCrop, faCrosshairs, faUndo, faFolder, faFile, faFolderOpen, faStar, faCopy, faPaste } from '@fortawesome/free-solid-svg-icons'
+import { faChevronRight, faChevronDown, faTimes, faChevronLeft, faCrop, faCrosshairs, faUndo, faFolder, faFile, faFolderOpen, faStar, faCopy, faPaste, faCheck, faImage } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(faPaste);
-library.add(faCopy);
+library.add(faImage);
 library.add(faUndo);
 library.add(faCrosshairs);
 library.add(faStar);
@@ -42,8 +41,8 @@ Vue.use(VueRouter);
 import ImportView from './views/ImportView';
 import LibrariesView from './views/LibrariesView';
 import LibraryView from './views/LibraryView';
-import EditView from "./EditView";
-import ExportView from "./ExportView";
+import RenderView from "./views/RenderView";
+import ExportView from "./views/ExportView";
 
 const router = new VueRouter({
   mode: 'history',
@@ -52,8 +51,8 @@ const router = new VueRouter({
     { path: "/library/:name", component: LibraryView },
     { path: "/library/:name/starred", component: LibraryView, props: { starred: true } },
     { path: "/library/:name/:import/**", component: ImportView },
-    { path: "/library", component: EditView },
-    { path: "/export/:imageId", component: ExportView }
+    { path: "/render/:name/:image", component: RenderView },
+    { path: "/export/**", component: ExportView }
   ]
 });
 

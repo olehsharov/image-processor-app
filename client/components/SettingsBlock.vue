@@ -1,6 +1,6 @@
 <template>
-    <div class="flex flex-col items-start">
-        <div class="text-gray-300 text-xs flex items-center w-full">
+    <div class="flex flex-col items-start pt-4">
+        <div class="text-gray-300 text-xs flex items-center w-full px-4">
             <div class="flex-grow uppercase font-bold">{{title}}</div>
             <slot name="title"></slot>
         </div>

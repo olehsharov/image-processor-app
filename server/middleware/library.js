@@ -6,10 +6,10 @@ const Queue = require('bee-queue');
 const ImageLibrary = require('../services/ImageLibrary');
 
 var LIBRARY_FOLDER = process.env.LIBRARY_FOLDER;
-var OUTPUT_FOLDER = process.env.OUTPUT_FOLDER;
 var INPUT_FOLDER = process.env.INPUT_FOLDER;
+var EXPORT_FOLDER = process.env.EXPORT_FOLDER;
 
-const library = new ImageLibrary(LIBRARY_FOLDER, OUTPUT_FOLDER);
+const library = new ImageLibrary(LIBRARY_FOLDER, EXPORT_FOLDER);
 const importQueue = new Queue("import", { isWorker: false });
 
 router.get("/api/libraries", (req, res) => {
@@ -30,6 +30,10 @@ router.put("/api/libraries/:library/images/star", (req, res) => {
 })
 router.put("/api/libraries/:library/images/foreground", (req, res) => {
     library.saveForegroundSettings(req.params.library, req.body.files, req.body.settings)
+    res.sendStatus(200);
+})
+router.put("/api/libraries/:library/images/export", (req, res) => {
+    library.exportImages(req.params.library, req.body.files)
     res.sendStatus(200);
 })
 router.get("/api/libraries/:library/images/isempty", (req, res) => {
@@ -72,6 +76,31 @@ router.get("/api/input/*", (req, res) => {
                         ...stats,
                         isFile: stats.isFile(),
                         isImage: false
+                    }
+            })
+            result = result.sort((a, b) => a.isFile ? 1 : -1);
+            res.send(result)
+        } else {
+            res.sendFile(fullPath)
+        }
+    } else {
+        res.send(404);
+    }
+})
+router.get("/api/export/*", (req, res) => {
+    var queryPath = decodeURIComponent(req.path.replace('/api/export/', ''));
+    var fullPath = path.join(EXPORT_FOLDER, queryPath)
+    if (fs.existsSync(fullPath)) {
+        if (fs.statSync(fullPath).isDirectory()) {
+            var result = fs.readdirSync(fullPath)
+                .filter(f => !f.toLocaleLowerCase().startsWith('.'))
+                .map(f => {
+                    var stats = fs.statSync(path.join(fullPath, f));
+                    return {
+                        name: f,
+                        ...stats,
+                        isFile: stats.isFile(),
+                        isImage: f.toLowerCase().endsWith('png')
                     }
             })
             result = result.sort((a, b) => a.isFile ? 1 : -1);

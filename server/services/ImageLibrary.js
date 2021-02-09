@@ -9,126 +9,7 @@ const uuid = require('uuid');
 const _ = require('lodash')
 const Queue = require('bee-queue');
 const rembgQueue = new Queue("rembg", { isWorker: false });
-// function ImageLibrary(libraryFolder, outputFolder) {
-//     this.libraryFolder = libraryFolder;
-//     this.outputFolder = outputFolder;
-// }
-
-// ImageLibrary.prototype.list = function() {
-//     var files = fs.readdirSync(this.input)
-//         .filter(f => !f.includes("failed") && !f.startsWith(".") && (f.toLowerCase().endsWith('jpg') || f.toLowerCase().endsWith('jpeg')))
-//         .sort((a, b) => fs.statSync(`${this.input}/${b}`).mtime.getTime() - fs.statSync(`${this.input}/${a}`).mtime.getTime());
-
-//     var result = [];
-//     for (var f in files) {
-//         result.push(this.get(files[f]));
-//     }
-//     return result;
-// }
-
-// ImageLibrary.prototype.get = function(file) {
-//     var foreground = null;
-//     var settings = null;
-    
-//     var metadataPath = `${this.input}/${file}.background`;
-//     if (fs.existsSync(metadataPath)) {
-//         original   =  fs.existsSync(`${metadataPath}/original.jpg`) && `original.jpg`;
-//         foreground =  fs.existsSync(`${metadataPath}/foreground.png`) && `foreground.png`;
-//         settings   = fs.existsSync(`${metadataPath}/settings.json`) && JSON.parse(fs.readFileSync(`${metadataPath}/settings.json`));
-//     }
-
-//     return {
-//         file: file,
-//         foreground: foreground,
-//         settings: settings
-//     }
-// }
-
-// ImageLibrary.prototype.image = async function(file, type, size, format) {
-//     var output = null;
-//     if (type == 'original') { // should read from /${file}.background/original.jpg
-//         output = sharp(`${this.input}/${file}`);
-//     }
-
-//     if (type == 'foreground') {
-//         output = sharp(`${this.input}/${file}.background/foreground.png`);
-//     }
-
-//     if (output) {
-//         output = size   ? output.resize(size) : output;
-//         output = format ? output.toFormat(format) : output;
-//         return output.rotate().toBuffer();
-//     }
-// }
-
-// ImageLibrary.prototype.saveSettings  = function(image, settings) {
-//     var object = JSON.parse(JSON.stringify(settings));
-//     object.maskSettings.edit = false;
-//     fs.writeFileSync(`${this.input}/${image}.background/settings.json`, JSON.stringify(object, null, 2));
-// }
-
-// ImageLibrary.prototype.process = function(image) {
-//     return new Promise(async (resolve, reject) => {
-//         try {
-//             var start = new Date().getTime();
-//             var file = image.file;
-//             var outputFolder = `${this.input}/${file}.background`;
-
-//             if (!fs.existsSync(outputFolder)) {
-//                 fs.mkdirSync(outputFolder);
-//             }
-        
-//             console.log(`${file}: original`);
-//             try {
-//                 await sharp(`${this.input}/${file}`).rotate().toFile(`${outputFolder}/original.jpg`);
-//             } catch (err) {
-//                 console.error('Cant read file', file)
-//                 console.error(err)
-//                 return;
-//             }
-        
-//             console.log(`${file}: background`);
-//             var foreground = `${outputFolder}/foreground.png`;
-//             var command = `python "server/rembg/remove.py" "${outputFolder}/original.jpg" "${foreground}"`
-//             console.log(command);
-//             child_process.exec(command, (error, stderr, stdout) => {
-//                 if (error) {
-//                     fs.rmdirSync(outputFolder, {recursive:true});
-//                     fs.renameSync(`${this.input}/${file}`, `${this.input}/${file}.failed`);
-//                     console.error(error, stderr);
-//                     // reject(error);
-//                 } else {
-//                     var endTime = new Date().getTime() - start;
-//                     console.log(`${file}: done in ${endTime/100}s`);
-//                     var settings = JSON.parse(JSON.stringify(defaultSettings));
-//                     settings.processedTime = endTime;
-//                     fs.writeFileSync(`${outputFolder}/settings.json`, JSON.stringify(settings));
-//                     resolve(stdout);
-//                 }
-//             });
-//         } catch (err) {
-//             reject(err);
-//         }
-//     });
-// }
-
-// ImageLibrary.prototype.export = async function(image) {
-//     var filename = path.basename(image, path.extname(image))
-//     var exportFile = `${this.output}/${filename}_export.png`;
-//     const browser = await puppeteer.launch({
-//         args: ['--no-sandbox', '--disable-setuid-sandbox'], 
-//         headless: true
-//     });
-//     const page = await browser.newPage();
-//     page.setViewport({width:3000, height: 3000});
-//     await page.goto(`http://localhost:8899/export/${image}`, {
-//         waitUntil: "networkidle0",
-//         timeout: 0
-//     });
-//     await page.screenshot({path: exportFile,  type: "png"});
-//     await browser.close();
-// }
-
+const exportQueue = new Queue("export", { isWorker: false });
 class ImageLibrary {
     constructor(libraryFolder, outputFolder) {
         this.libraryFolder = libraryFolder;
@@ -216,6 +97,15 @@ class ImageLibrary {
             this.writeImageMetadata(folder, f, metadata);
         })
     }
+    async exportImages(folder, files) {
+        await Promise.all(files.map(f => exportQueue.createJob({ library: folder,  file: f }).save()))
+        files.forEach(f => {
+            var metadata = this.imageMetadata(folder, f);
+            metadata.exported = false;
+            metadata.exporting = true;
+            this.writeImageMetadata(folder, f, metadata);
+        })
+    }
     importProgress(name) {
         var total = fs.readdirSync(path.join(this.libraryFolder, name))
             .filter(f => f.startsWith('import'))
@@ -234,7 +124,8 @@ class ImageLibrary {
         return JSON.parse(fs.readFileSync(this.imageMetadataFile(name, img)))
     }
     writeImageMetadata(name, img, metadata) {
-        fs.writeFileSync(this.imageMetadataFile(name, img), JSON.stringify(metadata))
+        var meta = Object.assign(this.imageMetadata(name, img), metadata)
+        fs.writeFileSync(this.imageMetadataFile(name, img), JSON.stringify(meta))
     }
     populateName(name, images) {
         return images.map(img => {
@@ -329,6 +220,35 @@ class ImageLibrary {
             }
         });
     }
+    async exportImage(library, image) {
+        var libraryMetadata = this.libraryMetadata(library);
+        var outputBase = path.join(this.outputFolder, libraryMetadata.name || library)
+        if (!fs.existsSync(outputBase)) {
+            fs.mkdirSync(outputBase);
+        }
+        var imageMetadata = this.imageMetadata(library, image);
+        var outputFolder = path.join(outputBase, imageMetadata.collection)
+        if (!fs.existsSync(outputFolder)) {
+            fs.mkdirSync(outputFolder);
+        }
+        var outputFilename = imageMetadata.name;
+        var exportFile = `${outputFolder}/${outputFilename}.png`;
+        const browser = await puppeteer.launch({
+            args: ['--no-sandbox', '--disable-setuid-sandbox'], 
+            headless: true
+        });
+        const page = await browser.newPage();
+        page.setViewport({width:3000, height: 3000});
+        await page.goto(`http://localhost:8899/render/${library}/${image}`, {
+            waitUntil: "networkidle0",
+            timeout: 0
+        });
+        await page.screenshot({path: exportFile,  type: "png"});
+        await browser.close();
+        imageMetadata.exported = true;
+        this.writeImageMetadata(library, image, imageMetadata);
+    }
 }
+
 
 module.exports = ImageLibrary;
