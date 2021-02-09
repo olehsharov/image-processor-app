@@ -11,8 +11,8 @@
             <div class="absolute inset-0 overflow-y-scroll">
                 <div v-for="(c, index) in collectionNames" :key="index" 
                     class="flex flex-col relative cursor-pointer">
-                    <div class="flex h-20 border-b border-gray-900 hover:bg-gray-700 w-full" @click="toggleOpen(c)">
-                        <div class="px-4 w-20 flex justify-center items-center">
+                    <div class="flex h-32 border-b border-gray-900 hover:bg-gray-700 w-full" @click="toggleOpen(c)">
+                        <div class="px-4 w-32 flex justify-center items-center">
                             <!-- <fa :icon="open[c] ? 'folder-open' : 'folder'" class="fa-2x"></fa> -->
                             <img :src="`/api/libraries/${name}/images/${collections[c][0].image}/thumbnail`">
                         </div>

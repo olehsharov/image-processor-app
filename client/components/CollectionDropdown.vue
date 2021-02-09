@@ -13,9 +13,9 @@
             </div>
             <div class="flex flex-grow relative">
                 <div class="flex flex-col absolute inset-0 overflow-y-scroll">
-                    <div v-for="(c, i) in names" :key="i" class="px-4 py-3 hover:bg-gray-700 cursor-pointer flex h-20 items-center" @click="select(c)" v-show="matches(c)">
+                    <div v-for="(c, i) in names" :key="i" class="px-4 py-3 hover:bg-gray-700 cursor-pointer flex flex-col w-full items-center" @click="select(c)" v-show="matches(c)">
                         <img :src="`/api/libraries/${name}/images/${collections[c][0].image}/thumbnail`" class="max-h-full">
-                        <span class="pl-4">{{c}}</span>
+                        <span class="pt-4 text-base">{{c}}</span>
                     </div>
                 </div>
             </div>
