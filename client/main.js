@@ -50,6 +50,7 @@ const router = new VueRouter({
   routes: [
     { path: "/", component: LibrariesView },
     { path: "/library/:name", component: LibraryView },
+    { path: "/library/:name/starred", component: LibraryView, props: { starred: true } },
     { path: "/library/:name/:import/**", component: ImportView },
     { path: "/library", component: EditView },
     { path: "/export/:imageId", component: ExportView }

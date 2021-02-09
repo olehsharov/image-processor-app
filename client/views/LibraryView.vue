@@ -2,7 +2,7 @@
     <div class="flex-grow flex">
         <div class="min-w-192 flex flex-col bg-gray-800 m-4 rounded overflow-hidden">
             <Heading>Библиотека</Heading>
-            <Library :name="$route.params.name" @preview="loadPreview($event)" @select="select($event)"></Library>
+            <Library :name="$route.params.name" @preview="loadPreview($event)" @select="select($event)" :starred="starred"></Library>
             <div class="border-t border-gray-900 px-4 py-3 flex">
                 <router-link class="btn" :to="`/`">Библиотеки</router-link>
                 <div class="flex-grow"></div>
@@ -34,6 +34,7 @@ import Library from '../components/Library'
 import imageLibrary from '../services/ImageLibrary'
 export default {
     components: { Library, LazyImage,LayersSimpleSettings, CssRenderer },
+    props: ['starred'],
     data() {
         return {
             loading: true,

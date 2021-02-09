@@ -4,10 +4,14 @@
         <div class="border-b border-gray-900 flex flex-col">
             <div class="text-xs bg-gray-900 absolute right-0 -mt-8 py-1 px-2 rounded shadow-xl mr-2 flex-grow text-gray-600" v-if="progress < 100">ИМПОРТ {{progress}}%</div>
             <div class="flex items-center px-4">
-                <div class="flex items-center cursor-pointer" :class="starred ? 'text-orange-400' : 'text-gray-600'" @click="starred = !starred">
+                <router-link :to="`/library/${name}`" v-if="starred" class="text-orange-400">
                     <fa icon="star"></fa>
                     &nbsp;&nbsp;Избранное
-                </div>
+                </router-link>
+                <router-link v-else :to="`/library/${name}/starred`" class="text-gray-600">
+                    <fa icon="star"></fa>
+                    &nbsp;&nbsp;Избранное
+                </router-link>
                 <div class="flex-grow"></div>
                 <CollectionDropdown :collections="collections" :names="collectionNames" @select="setCollection($event)" :disabled="selected.length == 0" :name="name">
                     Переместить
@@ -31,12 +35,13 @@
                         <div class="flex w-full items-center py-3 pr-4">
                             <b>{{c}}</b>
                             <div class="flex-grow"></div>
-                            <div class="text-gray-600">{{collections[c] && collections[c].length || 0}} фото</div>
+                            <div class="text-gray-600">{{starredPhotos(collections[c]) || 0}} из {{collections[c] && collections[c].length || 0}} фото</div>
                         </div>
                     </div>
                     <div class="px-4 py-3 grid grid-cols-4 grid-gap-2 border-b border-gray-900" v-if="open[c]">
                         <div v-for="img in collections[c]" 
                             :key="img.image" 
+                            v-show="(starred && img.metadata.starred) || !starred"
                             class="p-2 cursor-pointer hover:bg-gray-700 cursor-pointer relative" 
                             :class="{'bg-gray-600 hover:bg-gray-600' : selected.includes(img.image), 'border' : preview == img.image}" 
                             @click.shift="selectRange(img.image)"
@@ -57,9 +62,10 @@ import _ from 'lodash'
 import imageLibrary from '../services/ImageLibrary'
 export default {
     components: { CollectionDropdown },
+    props: ['starred'],
     data() {
         return {
-            starred: false,
+            showStarred: this.starred,
             loading: false,
             images: null,
             preview: null,
@@ -85,6 +91,9 @@ export default {
         },
     },
     methods: {
+        starredPhotos(images) {
+            return images && images.filter(img => img.metadata.starred).length
+        },
         isSelectionStarred() {
             return this.selectionMetadata().find(s => s.metadata.starred) != null;
         },

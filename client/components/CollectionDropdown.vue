@@ -8,7 +8,7 @@
         </div>
         <div class="h-128 right-0 mr-2 mt-2 flex flex-col top-full bg-gray-900 z-50 absolute shadow-2xl rounded overflow-hidden" style="border-bottom: 1px solid #333" v-if="open">
             <div class="flex px-4 py-4 w-full border-b border-gray-900">
-                <input type="text" class="input px-1 py-1 text-xs w-full" placeholder="Название" v-model="collection" :disabled="disabled" v-autofocus @keyup.enter.exact="enter()" ref="input">
+                <input type="text" class="input px-1 py-1 text-xs w-48" placeholder="Название" v-model="collection" :disabled="disabled" v-autofocus @keyup.enter.exact="enter()" ref="input">
                 <button class="btn btn-small ml-2" @click="select(collection)" :disabled="disabled || !name">Создать</button>
             </div>
             <div class="flex flex-grow relative">
