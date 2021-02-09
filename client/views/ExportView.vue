@@ -2,9 +2,12 @@
   <div class="flex-grow flex items-center justify-center p-12">
     <div class="bg-gray-800 w-full h-full shadow-xl rounded overflow-hidden flex flex-col relative">
         <div class="bg-gray-800 absolute inset-0 z-10 flex items-center justify-center" v-if="loading"><Loading></Loading></div>
-        <Heading>Импортировать<small class="text-gray-700 ml-4">/{{path}}</small></Heading>
+        <Heading>Експорт</Heading>
         <div class="flex-grow relative">
-          <div class="inset-0 absolute overflow-y-auto">
+          <div class="absolute inset-0 flex items-center justify-center">
+              <h1 class="text-gray-700">Еще ничего не выгружено</h1>
+          </div>
+          <div class="inset-0 absolute overflow-y-auto" v-if="!missing">
             <router-link 
               v-if="path"
               class="border-b border-gray-900 px-4 py-3 flex items-center hover:bg-gray-700 text-gray-400 h-20"
@@ -26,7 +29,8 @@
                     <img :src="`/api/export/${path}${l.name}`" class="max-h-full">
                 </div>
                 <div class="flex flex-col px-4 py-3">
-                    <a :href="`/api/export/${path}${l.name}`" target="_blank" class="text-gray-300 underline"><b>{{l.name}}</b></a>
+                    <a v-if="l.isFile" :href="`/api/export/${path}${l.name}`" target="_blank" class="text-gray-300 underline"><b>{{l.name}}</b></a>
+                    <span v-else class="text-gray-300"><b>{{l.name}}</b></span>
                     <span class="text-xs text-gray-600">{{new Date(l.ctime).toLocaleString('uk')}}</span>
                 </div>
 
@@ -36,17 +40,8 @@
             <div class="h-20 flex w-full relative justify-center items-center" v-if="list && list.length == 0">
                 <span class="text-gray-700">Нет папок</span>
             </div>
-
           </div>
-        </div>
-        <div class="px-4 py-3 flex border-t border-gray-900 flex items-center">
-            <router-link :to="`/library/${name}`" class="btn bg-gray-800" @click="importSelected()">
-                Назад
-            </router-link>
-            <div class="w-full"></div>
-            <button class="btn" :disabled="!path" @click="importSelected()">
-                Импортировать
-            </button>
+
         </div>
     </div>
   </div>
@@ -61,7 +56,8 @@ export default {
         return {
             path: null,
             loading: true,
-            list: null
+            list: null,
+            missing: null,
         }
     },
     watch: {
@@ -94,13 +90,13 @@ export default {
     methods: {
         async load() {
             this.loading = true;
-            this.list = await library.listDir('export', encodeURIComponent(this.path));
-            this.loading = false;
-        },
-        async importSelected() {
-            this.loading = true;
-            await library.importFolder(this.name, this.path);
-            this.$router.push(`/library/${this.name}`)
+            var result = await library.listDir('export', encodeURIComponent(this.path));
+            if (result.status === 404) {
+                this.list = null;
+                this.missing = true;
+            } else {
+                this.list = await result.json();
+            }
             this.loading = false;
         }
     }

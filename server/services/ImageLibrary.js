@@ -221,8 +221,7 @@ class ImageLibrary {
         });
     }
     async exportImage(library, image) {
-        var libraryMetadata = this.libraryMetadata(library);
-        var outputBase = path.join(this.outputFolder, libraryMetadata.name || library)
+        var outputBase = path.join(this.outputFolder, library)
         if (!fs.existsSync(outputBase)) {
             fs.mkdirSync(outputBase);
         }

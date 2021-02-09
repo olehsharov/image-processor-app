@@ -28,7 +28,7 @@ export default new class ImageLibrary {
         return await (await fetch("/api/libraries")).json();
     }
     async listDir(location, path) {
-        return await (await fetch(`/api/${location}/${path}`)).json();
+        return await fetch(`/api/${location}/${path}`);
     }
     async setLibraryName(library, name) {
         await fetch(`/api/libraries/${library}`, {

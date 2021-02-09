@@ -32,13 +32,24 @@
                     </button>
                 </div>
             </div>
-            <div class="flex-grow relative">
-                <LayersSimpleSettings 
-                    class="absolute inset-0 overflow-y-auto" 
-                    v-model="metadata" 
-                    :selected="selected" 
-                    @foreground="saveForegroundSettings($event)"
-                    @export="exportImages()"></LayersSimpleSettings>
+            <div class="flex-grow  flex flex-col">
+                <div class="flex flex-grow relative">
+                    <LayersSimpleSettings 
+                        class="absolute inset-0 overflow-y-auto" 
+                        v-model="metadata" 
+                        :selected="selected" 
+                        @foreground="saveForegroundSettings($event)"
+                        @export="exportImages()">
+                    </LayersSimpleSettings>
+                </div>
+                <div class="px-4 py-3 flex border-t border-gray-900">
+                    <div class="flex-grow"></div>
+                    <router-link class="btn btn-green" :to="`/export/${name}/`">
+                            &nbsp;
+                            Обработанные
+                            &nbsp;
+                    </router-link>
+                </div>
             </div>
         </div>
     </div>
