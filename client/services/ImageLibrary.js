@@ -30,6 +30,15 @@ export default new class ImageLibrary {
     async listDir(location, path) {
         return await (await fetch(`/api/${location}/${path}`)).json();
     }
+    async setLibraryName(library, name) {
+        await fetch(`/api/libraries/${library}`, {
+            method: 'put',
+            headers: { "Content-type" : "application/json" },
+            body: JSON.stringify({ 
+                name: name
+            })
+        });
+    }
     async listImages(library) {
         return await (await fetch(`/api/libraries/${library}/images`)).json();
     }
@@ -39,15 +48,39 @@ export default new class ImageLibrary {
     async isEmpty(library) {
         return await (await fetch(`/api/libraries/${library}/images/isempty`)).json();
     }
+    async starImages(library, files, starred) {
+        await fetch(`/api/libraries/${library}/images/star`, {
+            method: 'put',
+            headers: { "Content-type" : "application/json" },
+            body: JSON.stringify({  files: files, starred: starred })
+        });
+    }
+    async saveForegroundSettings(library, files, settings) {
+        await fetch(`/api/libraries/${library}/images/foreground`, {
+            method: 'put',
+            headers: { "Content-type" : "application/json" },
+            body: JSON.stringify({  files: files, settings: settings })
+        });
+    }
     async saveCollection(library, collection, files) {
-        await (await fetch(`/api/libraries/${library}/collections`, {
+        await fetch(`/api/libraries/${library}/collections`, {
             method: 'post',
             headers: { "Content-type" : "application/json" },
             body: JSON.stringify({ 
                 collection: collection, 
                 files: files
             })
-        }));
+        });
+    }
+    async saveMetadata(library, image, metadata) {
+        await fetch(`/api/libraries/${library}/images/${image}/metadata`, {
+            method: 'put',
+            headers: { "Content-type" : "application/json" },
+            body: JSON.stringify(metadata, null, 2)
+        });
+    }
+    async imageMetadata(library, image) {
+        return await (await fetch(`/api/libraries/${library}/images/${image}/metadata`)).json();
     }
     async importFolder(library, path) {
         return await (await fetch(`/api/import/${path}`, {

@@ -49,13 +49,13 @@ export default {
         unit: "",
         step: 0.01
     },
-    // "sepia": {
-    //     name: "sepia",
-    //     value: "0",
-    //     max: 100,
-    //     unit: "%",
-    //     step: 1
-    // },
+    "sepia": {
+        name: "sepia",
+        value: "0",
+        max: 100,
+        unit: "%",
+        step: 1
+    },
     "opacity": {
         name: "opacity",
         value: "100",

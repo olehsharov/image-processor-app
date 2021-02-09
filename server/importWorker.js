@@ -4,7 +4,7 @@ const importQueue = new Queue('import');
 const ImageLibrary = require('./services/ImageLibrary');
 
 (() => {
-    console.log('Waiting for jobs...')
+    console.log('Waiting for import jobs...')
     const library = new ImageLibrary(process.env.LIBRARY_FOLDER, process.env.EXPORT_FOLDER);
     importQueue.process(async (job, done) => {
         console.log(`Importing ${job.id}: [${job.data.folder}]`);

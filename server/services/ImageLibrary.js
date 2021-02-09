@@ -7,6 +7,8 @@ const sharp = require('sharp');
 const walk = require('@nodelib/fs.walk');
 const uuid = require('uuid');
 const _ = require('lodash')
+const Queue = require('bee-queue');
+const rembgQueue = new Queue("rembg", { isWorker: false });
 // function ImageLibrary(libraryFolder, outputFolder) {
 //     this.libraryFolder = libraryFolder;
 //     this.outputFolder = outputFolder;
@@ -133,33 +135,86 @@ class ImageLibrary {
         this.outputFolder = outputFolder;
     }
     listLibraries() {
-        return fs.readdirSync(this.libraryFolder).filter(f => !f.startsWith('.')).map(f => {
-            return {
-                name: f,
-                ...fs.statSync(path.join(this.libraryFolder, f))
-            }
-        });
+        return fs.readdirSync(this.libraryFolder)
+            .filter(f => !f.startsWith('.'))
+            .map(f => {
+                return this.getLibrary(f)
+            });
     }
-    listFiles(name) {
-        return fs.readdirSync(path.join(this.libraryFolder, name))
+    libFolder(folder) {
+        return path.join(this.libraryFolder, folder);
+    }
+    createLibrary(name) {
+        var folder = uuid.v1();
+        fs.mkdirSync(this.libFolder(folder));
+        var metadata = this.libraryMetadata(folder);
+        metadata.name = name;
+        fs.writeFileSync(this.libraryMetadataFile(folder), JSON.stringify(metadata));
+        return this.getLibrary(folder);
+    }
+    getLibrary(folder) {
+        return {
+            folder: folder,
+            metadata: this.libraryMetadata(folder),
+            ...fs.statSync(this.libFolder(folder))
+        }
+    }
+    libraryMetadataFile(folder) {
+        return path.join(this.libraryFolder, folder, 'library.json');
+    }
+    libraryMetadata(folder) {
+        var metadata = { name: "Без имени" }
+        if (fs.existsSync(this.libraryMetadataFile(folder))) {
+            metadata = JSON.parse(fs.readFileSync(this.libraryMetadataFile(folder)))
+        }
+        return metadata;
+    }
+    setLibraryName(folder, name) {
+        var metadata = this.libraryMetadata(folder);
+        metadata.name = name;
+        fs.writeFileSync(this.libraryMetadataFile(folder), JSON.stringify(metadata, null, 2))
+    }
+    listFiles(folder) {
+        return fs.readdirSync(path.join(this.libraryFolder, folder))
             .filter(f => f.endsWith('jpg') && !f.includes('small'))
             .map(f => f.replace('.jpg', ''));
     }
     thumbnail(name, image) {
         return path.join(this.libraryFolder, name, `${image}.small.jpg`)
     }
+    foreground(name, image) {
+        return path.join(this.libraryFolder, name, `${image}.background/foreground.png`)
+    }
     image(name, image) {
         return path.join(this.libraryFolder, name, `${image}.jpg`)
     }
     saveCollection(name, collection, files) {
         files.forEach(f => {
-            var metadata = this.readMetadata(name, f);
+            var metadata = this.imageMetadata(name, f);
             metadata.collection = collection;
-            this.writeMetadata(name, f, metadata);
+            this.writeImageMetadata(name, f, metadata);
         })
     }
     listImages(name) {
         return this.populateName(name, this.listFiles(name));
+    }
+    async starImages(folder, files, starred) {
+        if (starred) {
+            await Promise.all(files.map(f => rembgQueue.createJob({ library: folder,  file: f }).save()))
+        }
+        files.forEach(f => {
+            var metadata = this.imageMetadata(folder, f);
+            metadata.starred = starred;
+            this.writeImageMetadata(folder, f, metadata);
+        })
+    }
+    async saveForegroundSettings(folder, files, settings) {
+        files.forEach(f => {
+            var metadata = this.imageMetadata(folder, f);
+            metadata.sharpness = settings.sharpness;
+            metadata.foregroundSettings = settings.foregroundSettings;
+            this.writeImageMetadata(folder, f, metadata);
+        })
     }
     importProgress(name) {
         var total = fs.readdirSync(path.join(this.libraryFolder, name))
@@ -172,34 +227,24 @@ class ImageLibrary {
             imported: imported
         };
     }
-    libraryExists(name) {
-        return fs.existsSync(path.join(this.libraryFolder, name));
-    }
-    createLibrary(name) {
-        var libFolder = path.join(this.libraryFolder, name);
-        fs.mkdirSync(libFolder);
-        return {
-            name: libFolder,
-            ...fs.statSync(libFolder)
-        }
-    }
-    metadataFile(name, img) {
+    imageMetadataFile(name, img) {
         return path.join(this.libraryFolder, name, `${img}.json`)
     }
-    readMetadata(name, img) {
-        return JSON.parse(fs.readFileSync(this.metadataFile(name, img)))
+    imageMetadata(name, img) {
+        return JSON.parse(fs.readFileSync(this.imageMetadataFile(name, img)))
     }
-    writeMetadata(name, img, metadata) {
-        fs.writeFileSync(this.metadataFile(name, img), JSON.stringify(metadata))
+    writeImageMetadata(name, img, metadata) {
+        fs.writeFileSync(this.imageMetadataFile(name, img), JSON.stringify(metadata))
     }
     populateName(name, images) {
         return images.map(img => {
             return {
                 image: img,
-                ...fs.statSync(this.metadataFile(name, img)),
+                ...fs.statSync(this.imageMetadataFile(name, img)),
                 metadata: {
-                    name: this.readMetadata(name, img).name,
-                    collection: this.readMetadata(name, img).collection
+                    starred: this.imageMetadata(name, img).starred,
+                    name: this.imageMetadata(name, img).name,
+                    collection: this.imageMetadata(name, img).collection
                 }
             }
         });
@@ -208,7 +253,7 @@ class ImageLibrary {
         return images.map(img => {
             return {
                 image: img,
-                metadata: this.readMetadata(name, img)
+                metadata: this.imageMetadata(name, img)
             }
         });
     }
@@ -254,6 +299,35 @@ class ImageLibrary {
             console.error(err);
             throw new Error(err);
         }
+    }
+    removeBackground(library, image) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                var start = new Date().getTime();
+                var folder = path.join(this.libraryFolder, library);
+                var outputFolder = `${folder}/${image}.background`;
+
+                if (!fs.existsSync(outputFolder)) fs.mkdirSync(outputFolder);
+            
+                console.log(`${image}: background`);
+                var command = `python "server/rembg/remove.py" "${folder}/${image}.jpg" "${outputFolder}/foreground.png"`
+                console.log(command);
+                child_process.exec(command, (error, stderr, stdout) => {
+                    if (error) {
+                        console.error(error, stderr);
+                    } else {
+                        var endTime = new Date().getTime() - start;
+                        console.log(`${image}: done in ${endTime/100}s`);
+                        var metadata = this.imageMetadata(library, image);
+                        metadata.processed = true;
+                        this.writeImageMetadata(library, image, metadata);
+                        resolve(stdout);
+                    }
+                });
+            } catch (err) {
+                reject(err);
+            }
+        });
     }
 }
 

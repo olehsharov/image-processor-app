@@ -15,13 +15,22 @@ const importQueue = new Queue("import", { isWorker: false });
 router.get("/api/libraries", (req, res) => {
     res.send(library.listLibraries());
 })
-
 router.post("/api/libraries", (req, res) => {
     res.send(library.createLibrary(req.body.name));
-
+})
+router.put("/api/libraries/:library", (req, res) => {
+    res.send(library.setLibraryName(req.params.library, req.body.name));
 })
 router.get("/api/libraries/:library/images", (req, res) => {
     res.send(library.listImages(req.params.library));
+})
+router.put("/api/libraries/:library/images/star", (req, res) => {
+    library.starImages(req.params.library, req.body.files, req.body.starred)
+    res.sendStatus(200);
+})
+router.put("/api/libraries/:library/images/foreground", (req, res) => {
+    library.saveForegroundSettings(req.params.library, req.body.files, req.body.settings)
+    res.sendStatus(200);
 })
 router.get("/api/libraries/:library/images/isempty", (req, res) => {
     res.send(library.listImages(req.params.library).length == 0);
@@ -29,8 +38,17 @@ router.get("/api/libraries/:library/images/isempty", (req, res) => {
 router.get("/api/libraries/:library/importprogress", (req, res) => {
     res.send(library.importProgress(req.params.library));
 })
+router.get("/api/libraries/:library/images/:image/metadata", (req, res) => {
+    res.send(library.imageMetadata(req.params.library, req.params.image));
+})
+router.put("/api/libraries/:library/images/:image/metadata", (req, res) => {
+    res.send(library.writeImageMetadata(req.params.library, req.params.image, req.body));
+})
 router.get("/api/libraries/:library/images/:image/thumbnail", (req, res) => {
     res.sendFile(library.thumbnail(req.params.library, req.params.image));
+})
+router.get("/api/libraries/:library/images/:image/foreground", (req, res) => {
+    res.sendFile(library.foreground(req.params.library, req.params.image));
 })
 router.get("/api/libraries/:library/images/:image", (req, res) => {
     res.sendFile(library.image(req.params.library, req.params.image));

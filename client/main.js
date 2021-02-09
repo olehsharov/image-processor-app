@@ -6,9 +6,14 @@ import App from './App.vue'
 import './assets/styles.css';
 
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faChevronRight, faChevronDown, faTimes, faChevronLeft, faCrop, faCrosshairs, faUndo, faFolder, faFile, faFolderOpen } from '@fortawesome/free-solid-svg-icons'
+import { faChevronRight, faChevronDown, faTimes, faChevronLeft, faCrop, faCrosshairs, faUndo, faFolder, faFile, faFolderOpen, faStar, faCopy, faPaste } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
+library.add(faPaste);
+library.add(faCopy);
+library.add(faUndo);
+library.add(faCrosshairs);
+library.add(faStar);
 library.add(faFile);
 library.add(faFolder);
 library.add(faFolderOpen);

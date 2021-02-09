@@ -1,11 +1,23 @@
 <template>
     <div class="flex flex-col flex-grow relative select-none">
         <div class="bg-gray-800 absolute inset-0 z-10 flex items-center justify-center" v-if="loading"><Loading></Loading></div>
-        <div class="border-b border-gray-900">
-            <div class="text-xs px-4 border-b border-gray-900 flex-grow text-gray-600" v-if="progress < 100">ИМПОРТ {{progress}}%</div>
-            <CollectionDropdown :collections="collections" :names="collectionNames" @select="setCollection($event)" :disabled="selected.length == 0" :name="name">
-                Переместить
-            </CollectionDropdown>
+        <div class="border-b border-gray-900 flex flex-col">
+            <div class="text-xs bg-gray-900 absolute right-0 -mt-8 py-1 px-2 rounded shadow-xl mr-2 flex-grow text-gray-600" v-if="progress < 100">ИМПОРТ {{progress}}%</div>
+            <div class="flex items-center px-4">
+                <div class="flex items-center cursor-pointer" :class="starred ? 'text-orange-400' : 'text-gray-600'" @click="starred = !starred">
+                    <fa icon="star"></fa>
+                    &nbsp;&nbsp;Избранное
+                </div>
+                <div class="flex-grow"></div>
+                <CollectionDropdown :collections="collections" :names="collectionNames" @select="setCollection($event)" :disabled="selected.length == 0" :name="name">
+                    Переместить
+                </CollectionDropdown>
+                 <button class="btn" :disabled="selected.length == 0 || !preview" @click="starSelected()">
+                    &nbsp;
+                    <fa icon="star" :class="hasStars ? 'text-orange-400' : 'text-gray-600'"></fa>
+                    &nbsp;
+                </button>
+            </div>
         </div>
         <div class="flex flex-grow relative">
             <div class="absolute inset-0 overflow-y-scroll">
@@ -25,12 +37,13 @@
                     <div class="px-4 py-3 grid grid-cols-4 grid-gap-2 border-b border-gray-900" v-if="open[c]">
                         <div v-for="img in collections[c]" 
                             :key="img.image" 
-                            class="p-2 cursor-pointer hover:bg-gray-700 cursor-pointer" 
+                            class="p-2 cursor-pointer hover:bg-gray-700 cursor-pointer relative" 
                             :class="{'bg-gray-600 hover:bg-gray-600' : selected.includes(img.image), 'border' : preview == img.image}" 
                             @click.shift="selectRange(img.image)"
                             @click.meta="toggleSelectAdd(img.image)"
                             @click.exact="previewSelect(img.image)">
                             <img :src="`/api/libraries/${name}/images/${img.image}/thumbnail`">
+                            <fa v-if="img.metadata.starred  " icon="star" class="text-orange-400 absolute top-0 left-0"></fa>
                         </div>
                     </div>
                 </div>
@@ -46,6 +59,7 @@ export default {
     components: { CollectionDropdown },
     data() {
         return {
+            starred: false,
             loading: false,
             images: null,
             preview: null,
@@ -53,7 +67,8 @@ export default {
             open: {
                 'default': true
             },
-            progress:100
+            progress:100,
+            hasStars: false
         }
     },
     computed: {
@@ -67,9 +82,29 @@ export default {
         },
         collections() {
             return this.images ? _.groupBy(this.images, 'metadata.collection') : [];
-        }
+        },
     },
     methods: {
+        isSelectionStarred() {
+            return this.selectionMetadata().find(s => s.metadata.starred) != null;
+        },
+        imageMetadata(image) {
+            return this.images.find(img => img.image == image);
+        },
+        selectionMetadata() {
+            return _.uniq(this.selected).map(selected => this.imageMetadata(selected))
+        },
+        async starSelected() {
+            var selection = this.selectionMetadata();
+            if (this.isSelectionStarred()) {
+                selection.forEach(s => s.metadata.starred = false);
+                await imageLibrary.starImages(this.name, _.uniq(this.selected), false)
+            } else {
+                selection.forEach(s => s.metadata.starred = true);
+                await imageLibrary.starImages(this.name, _.uniq(this.selected), true)
+            }
+            this.hasStars = this.isSelectionStarred();
+        },
         async setCollection(name) {
             this.selected.forEach(selected => {
                 this.images.find(img => img.image == selected).metadata.collection = name;
@@ -80,7 +115,8 @@ export default {
         previewSelect(image) {
             this.preview = image;
             this.selected = [image]
-            this.$emit('select', image)
+            this.$emit('preview', image)
+            this.hasStars = this.isSelectionStarred();
         },
         toggleSelectAdd(image) {
             if (this.selected.includes(image)) {
@@ -88,6 +124,8 @@ export default {
             } else {
                 this.selected.push(image);
             }
+            this.hasStars = this.isSelectionStarred();
+            this.$emit('select', _.uniq(this.selected))
         },
         selectRange(img) {
             if (!this.preview) {
@@ -103,6 +141,8 @@ export default {
                     this.selected.push(images[i].image)
                 }
             }
+            this.hasStars = this.isSelectionStarred();
+            this.$emit('select', _.uniq(this.selected))
         },
         toggleOpen(collection) {
             this.$set(this.open, collection, !this.open[collection]);
@@ -122,6 +162,9 @@ export default {
             // }
         }, 1000);
         await this.load();
+    },
+    destroyed() {
+        clearInterval(this.interval)
     }
 }
 </script>

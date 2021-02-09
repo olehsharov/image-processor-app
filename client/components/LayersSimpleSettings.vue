@@ -2,6 +2,7 @@
     <div class="flex flex-col p-4" v-if="value">
         <SettingsBlock title="Кроп">
             <Slider title="Зум" :min=0.5 :max=2  :step=0.001  v-model="value.transform.scale" :defaultValue="1"></Slider>
+            <Slider title="Горизонт" :min=-45 :max=45  :step=0.1  v-model="value.transform.rotate" :defaultValue="0"></Slider>
             <Slider title="Вретикаль" :min=-0.5 :max=0.5  :step=0.001  v-model="value.transform.y" :defaultValue="0"></Slider>
             <Slider title="Горизонталь" :min=-0.5 :max=0.5  :step=0.001 v-model="value.transform.x" :defaultValue="0"></Slider>
         </SettingsBlock>
@@ -37,6 +38,9 @@
             </Slider>
         </SettingsBlock>
          <SettingsBlock title="Модель">
+           <div slot="title" class="pl-2 flex" v-if="selected && selected.length > 0">
+               <span class="text-xs text-gray-600 cursor-pointer" @click="applySettings()">ПРИМЕНИТЬ</span>
+           </div>
            <Slider title="Яркость" 
                 :max="value.foregroundSettings.filters['brightness'].max" 
                 :min="value.foregroundSettings.filters['brightness'].min" 
@@ -88,9 +92,15 @@ import SettingsBlock from './SettingsBlock';
 import Slider from './Slider';
 
 export default {
-    props: ['value'],
+    props: ['value', 'selected'],
     components: {SettingsBlock, Slider},
     methods: {
+        applySettings() {
+            this.$emit('foreground', {
+                sharpness: this.value.sharpness,
+                foregroundSettings: Object.assign({}, this.value.foregroundSettings)
+            })
+        },
         toggleEditMask() {
             this.$set(this.value.maskSettings, 'edit', !this.value.maskSettings.edit);
         }

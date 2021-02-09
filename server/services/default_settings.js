@@ -3,6 +3,7 @@ module.exports = {
     "transform": {
       "translateX": 0,
       "translateY": 0,
+      "rotate": 0,
       "scale": 1
     },
     "backdropSettings": {

@@ -97,7 +97,7 @@ export default {
       if (this.image && this.image.settings) {
         imageLibrary.saveSettings(this.image.file, this.image.settings);
       }
-    }, 1000),
+   }, 1000),
    async exportImage() {
       this.exporting = this.image.file;
       await imageLibrary.exportImage(this.image.file);

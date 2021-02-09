@@ -1,25 +1,37 @@
 <template>
     <div class="absolute flex justify-center items-center inset-0" :style="transformStyles">
-        <Layer class="absolute flex justify-center items-center inset-0" :settings="value.settings.backgroundSettings">
-            <ImageLayer class="absolute h-full" :src="`/images/${value.file}/original`" @load="imageLoaded()"></ImageLayer>
-            <ImageLayer class="absolute  h-full" :src="`/images/${value.file}/foreground`" @load="imageLoaded()" :settings="{blend: 'difference', filters: { contrast: {value: '-10'}, blur: { value: '1'}} }"></ImageLayer>
+        <Layer v-if="value && value.processed"  class="absolute flex justify-center items-center inset-0" :settings="value.backgroundSettings">
+            <ImageLayer class="absolute h-full" :src="`/api/libraries/${library}/images/${image}`" @load="imageLoaded()"></ImageLayer>
+            <ImageLayer class="absolute  h-full" :src="`/api/libraries/${library}/images/${image}/foreground`" @load="imageLoaded()" :settings="{blend: 'difference', filters: { contrast: {value: '-10'}, blur: { value: '1'}} }"></ImageLayer>
         </Layer>
-        <GradientLayer class="absolute inset-0 -m-2" :settings="value.settings.maskSettings" :transform="value.settings.transform"></GradientLayer>
-        <Layer class="absolute flex justify-center items-center inset-0" :style="sharpnessStyles" >
-            <ImageLayer class="absolute  h-full" :src="`/images/${value.file}/foreground`" @load="imageLoaded()" :settings="value.settings.foregroundSettings" ></ImageLayer>
+        <GradientLayer v-if="value && value.processed" class="absolute inset-0 -m-2" :settings="value.maskSettings" :transform="value.transform"></GradientLayer>
+        <Layer v-if="value && value.processed" class="absolute flex justify-center items-center inset-0" :style="sharpnessStyles" >
+            <ImageLayer class="absolute  h-full" :src="`/api/libraries/${library}/images/${image}/foreground`" @load="imageLoaded()" :settings="value.foregroundSettings" ></ImageLayer>
         </Layer>
-        <EditBox v-if="value.settings.maskSettings.edit" v-model="value.settings.maskSettings.gradient" :transform="value.settings.transform"></EditBox>
+        <Layer v-else class="absolute flex justify-center items-center inset-0" :style="sharpnessStyles" >
+            <ImageLayer class="absolute h-full" :src="`/api/libraries/${library}/images/${image}`"  @load="imageLoaded()" :settings="value.foregroundSettings"></ImageLayer>
+        </Layer>
+        <EditBox v-if="value && value.processed & value.maskSettings.edit" v-model="value.maskSettings.gradient" :transform="value.transform"></EditBox>
         <svg>
             <filter :id="sharpenssId">
                 <feConvolveMatrix :order="sharpnessOrder" :kernelMatrix="sharpnessMatrix" preserveAlpha="false"/>
+                <feComponentTransfer>
+                    <feFuncR type="gamma" :amplitude="hueRotateR" :exponent="1" offset="0"/>
+		            <feFuncG type="gamma" amplitude="1" :exponent="1" offset="0"/>
+		            <feFuncB type="gamma" :amplitude="hueRotateB" :exponent="1" offset="0"/>
+		            <feFuncA type="identity"/>
+  	            </feComponentTransfer>
             </filter>
         </svg>
         <!-- <div class="absolute inset-0 p-6 text-gray-900 z-20 overflow-auto">
             <pre style="font-size:9px">
-{{JSON.stringify(value.settings, null, 2)}}
+                {{hueRotateR}}
+                {{hueRotateB}}
+                {{hueExponent}}
+{{JSON.stringify(value, null, 2)}}
             </pre>
         </div> -->
-        <div class="absolute inset-0 z-20 flex items-center justify-center" style="background: rgba(255,255,255,0.9); " v-if="loaded < 3">
+        <div class="absolute inset-0 z-20 flex items-center justify-center" style="background: rgba(255,255,255,0.9); " v-if="loaded < imagesToLoad">
             <Loading class="h-12 w-12 text-gray-900"></Loading>
         </div>
     </div>
@@ -34,7 +46,7 @@ import Library from './Library';
 import GradientLayer from './GradientLayer';
 
 export default {
-    props: ['value'],
+    props: ['value', 'library', 'image'],
     components: { ImageLayer, Library, GradientLayer, Loading, EditBox, Layer },
     data() {
         return {
@@ -42,8 +54,7 @@ export default {
         }
     },
     watch: {
-        value() {
-            console.log('Watch')
+        image() {
             this.loaded = 0;
         }
     },
@@ -53,8 +64,32 @@ export default {
         }
     },
     computed: {
+        hueExponent() {
+            if (this.value.foregroundSettings) {
+                var hue = this.value.foregroundSettings.filters['hue-rotate'].value;
+                return 1 + Math.abs(hue/90);
+            }
+            return 1; 
+        },
+        hueRotateR() {
+            if (this.value.foregroundSettings) {
+                var hue = this.value.foregroundSettings.filters['hue-rotate'].value;
+                return hue > 0 ? 1 + Math.abs(hue/60) : 1;
+            }
+            return 1;
+        },
+        hueRotateB() {
+            if (this.value.foregroundSettings) {
+                var hue = this.value.foregroundSettings.filters['hue-rotate'].value;
+                return hue < 0 ? 1 + Math.abs(hue/60) : 1;
+            }
+            return 1;
+        },
+        imagesToLoad() {
+            return this.value.processed ? 3 : 1;
+        },
         sharpness() {
-            return (this.value && this.value.settings && this.value.settings.sharpness) || 0;
+            return (this.value && this.value && this.value.sharpness) || 0;
         },
         sharpnessOrder() {
             return 3;
@@ -80,7 +115,12 @@ export default {
         },
         transformStyles() {
             return {
-                transform: this.value && this.value.settings && `scale(${this.value.settings.transform.scale || 1}) translateX(${(this.value.settings.transform.x || 0) * -100}%) translateY(${(this.value.settings.transform.y || 0) * -100}%)`
+                transform: this.value && `
+                    rotate(${(this.value.transform.rotate || 0)}deg) 
+                    scale(${this.value.transform.scale || 1}) 
+                    translateX(${(this.value.transform.x || 0) * 100}%) 
+                    translateY(${(this.value.transform.y || 0) * -100}%)
+                `
             }
         }
     },

@@ -1,7 +1,7 @@
 import supportedFilters from './filters';
 
 function filters(filters) {
-    return Object.keys(filters).map(f => `${f}(${filters[f].value}${supportedFilters[f].unit})`).join(' ');
+    return Object.keys(filters).filter(f => f != 'hue-rotate').map(f => `${f}(${filters[f].value}${supportedFilters[f].unit})`).join(' ');
 };
 
 export default function (layer) {
