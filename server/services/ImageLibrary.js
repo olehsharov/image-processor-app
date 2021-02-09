@@ -80,14 +80,14 @@ class ImageLibrary {
         return this.populateName(name, this.listFiles(name));
     }
     async starImages(folder, files, starred) {
-        if (starred) {
-            await Promise.all(files.map(f => rembgQueue.createJob({ library: folder,  file: f }).save()))
-        }
         files.forEach(f => {
             var metadata = this.imageMetadata(folder, f);
             metadata.starred = starred;
             this.writeImageMetadata(folder, f, metadata);
         })
+        if (starred) {
+            await Promise.all(files.map(f => rembgQueue.createJob({ library: folder,  file: f }).save()))
+        }
     }
     async saveForegroundSettings(folder, files, settings) {
         files.forEach(f => {
@@ -98,13 +98,13 @@ class ImageLibrary {
         })
     }
     async exportImages(folder, files) {
-        await Promise.all(files.map(f => exportQueue.createJob({ library: folder,  file: f }).save()))
         files.forEach(f => {
             var metadata = this.imageMetadata(folder, f);
             metadata.exported = false;
             metadata.exporting = true;
             this.writeImageMetadata(folder, f, metadata);
         })
+        await Promise.all(files.map(f => exportQueue.createJob({ library: folder,  file: f }).save()))
     }
     importProgress(name) {
         var total = fs.readdirSync(path.join(this.libraryFolder, name))
