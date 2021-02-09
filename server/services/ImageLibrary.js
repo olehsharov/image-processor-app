@@ -206,6 +206,9 @@ class ImageLibrary {
                 child_process.exec(command, (error, stderr, stdout) => {
                     if (error) {
                         console.error(error, stderr);
+                        var metadata = this.imageMetadata(library, image);
+                        metadata.processed = false;
+                        this.writeImageMetadata(library, image, metadata);
                     } else {
                         var endTime = new Date().getTime() - start;
                         console.log(`${image}: done in ${endTime/100}s`);
