@@ -4,7 +4,7 @@
         <div class="bg-gray-800 absolute inset-0 z-10 flex items-center justify-center" v-if="loading"><Loading></Loading></div>
         <Heading>Експорт</Heading>
         <div class="flex-grow relative">
-          <div class="absolute inset-0 flex items-center justify-center">
+          <div class="absolute inset-0 flex items-center justify-center" v-if="missing">
               <h1 class="text-gray-700">Еще ничего не выгружено</h1>
           </div>
           <div class="inset-0 absolute overflow-y-auto" v-if="!missing">
