@@ -45,6 +45,9 @@
            <div slot="title" class="pl-2 flex" v-if="selected && selected.length > 0">
                <span class="text-xs text-gray-600 cursor-pointer" @click="applySettings()">ПРИМЕНИТЬ</span>
            </div>
+           <div class="flex">
+                <button class="btn btn-xs btn-dark mr-2" @click="() => toggleEditRect()"><fa icon="crosshairs"></fa>&nbsp;&nbsp;Редактировать</button>
+           </div>
            <Slider title="Яркость" 
                 :max="value.foregroundSettings.filters['brightness'].max" 
                 :min="value.foregroundSettings.filters['brightness'].min" 
@@ -110,6 +113,9 @@ export default {
         },
         toggleEditMask() {
             this.$set(this.value.maskSettings, 'edit', !this.value.maskSettings.edit);
+        },
+        toggleEditRect() {
+            this.$set(this.value.foregroundSettings.cutout, 'edit', !this.value.foregroundSettings.cutout.edit);
         }
     }
 }

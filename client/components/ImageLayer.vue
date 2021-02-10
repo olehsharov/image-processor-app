@@ -1,5 +1,5 @@
 <template>
-    <FileImage :src="src" :style="layerStyles" :orientation="orientation" @load="$emit('load')"></FileImage>
+    <FileImage :src="src" :style="layerStyles" @load="$emit('load')"></FileImage>
 </template>
 <script>
 import FileImage from './FileImage';
@@ -9,7 +9,6 @@ export default {
     components: {FileImage},
     props: {
         src: String,
-        orientation: Number,
         settings: Object
     },
     computed: {

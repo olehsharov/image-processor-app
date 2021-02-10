@@ -1,20 +1,38 @@
 <template>
     <div class="absolute flex justify-center items-center inset-0" :style="transformStyles">
+        <!-- BACKGROUND SEPARATION BASED ON EXTRACTED FOREGROUND -->
         <Layer v-if="value && value.processed"  class="absolute flex justify-center items-center inset-0" :settings="value.backgroundSettings">
             <ImageLayer class="absolute h-full" :src="`/api/libraries/${library}/images/${image}`" @load="imageLoaded()"></ImageLayer>
             <ImageLayer class="absolute  h-full" :src="`/api/libraries/${library}/images/${image}/foreground`" @load="imageLoaded()" :settings="{blend: 'difference', filters: { contrast: {value: '-10'}, blur: { value: '1'}} }"></ImageLayer>
         </Layer>
+
+        <!-- LAYER THAT MAKES SHADOWS POP FORM ORIGINAL IMAGE -->
         <GradientLayer v-if="value && value.processed && !value.maskSettings.off" class="absolute inset-0 -m-2" :settings="value.maskSettings" :transform="value.transform"></GradientLayer>
-        <Layer v-if="value && value.processed" class="absolute flex justify-center items-center inset-0" :style="sharpnessStyles" >
-            <ImageLayer class="absolute  h-full" :src="`/api/libraries/${library}/images/${image}/foreground`" @load="imageLoaded()" :settings="value.foregroundSettings" ></ImageLayer>
+
+        <!-- FOREGROUND IF HAVE ONE PROCESSED-->
+        <Layer v-if="value && value.processed" class="absolute flex justify-center items-center inset-0" :style="sharpnessStyles">
+            <ImageLayer class="absolute  h-full" 
+                :src="`/api/libraries/${library}/images/${image}/foreground`" 
+                @load="imageLoaded()" 
+                :settings="value.foregroundSettings">
+            </ImageLayer>
         </Layer>
+
+        <!-- FOREGROUND IF NOT PROCESSED-->
         <Layer v-else class="absolute flex justify-center items-center inset-0" :style="sharpnessStyles" >
             <ImageLayer class="absolute h-full" :src="`/api/libraries/${library}/images/${image}`"  @load="imageLoaded()" :settings="value.foregroundSettings"></ImageLayer>
         </Layer>
-        <EditBox v-if="value && value.processed & value.maskSettings.edit" v-model="value.maskSettings.gradient" :transform="value.transform"></EditBox>
+
+        <!-- FOREGROUND: JUST INPUT IMAGE-->
         <Layer v-if="value.maskSettings.off" class="absolute flex justify-center items-center inset-0" :style="sharpnessStyles" >
             <ImageLayer class="absolute h-full" :src="`/api/libraries/${library}/images/${image}`" @load="imageLoaded()" :settings="value.foregroundSettings"></ImageLayer>
         </Layer>
+
+        <Rectangle v-if="value.foregroundSettings.cutout" v-model="value.foregroundSettings.cutout" color="#f7f7f7"></Rectangle>
+        <EditBox v-if="value.foregroundSettings.cutout.edit" v-model="value.foregroundSettings.cutout" :default="defaultCutout" :transform="value.transform"></EditBox>
+
+        <!-- <EditBox v-if="value && value.maskSettings.edit" v-model="value.maskSettings.gradient" :transform="value.transform"></EditBox> -->
+
         <svg>
             <filter :id="sharpenssId">
                 <feConvolveMatrix :order="sharpnessOrder" :kernelMatrix="sharpnessMatrix" preserveAlpha="false"/>
@@ -47,13 +65,20 @@ import ImageLayer from './ImageLayer';
 import Layer from './Layer';
 import Library from './Library';
 import GradientLayer from './GradientLayer';
+import Rectangle from './Rectangle';
 
 export default {
     props: ['value', 'library', 'image'],
-    components: { ImageLayer, Library, GradientLayer, Loading, EditBox, Layer },
+    components: { ImageLayer, Library, GradientLayer, Loading, EditBox, Layer, Rectangle },
     data() {
         return {
-            loaded: 0
+            loaded: 0,
+            defaultCutout: {
+                x: 50,
+                y: 50,
+                width: 85,
+                height: 85
+            }
         }
     },
     watch: {

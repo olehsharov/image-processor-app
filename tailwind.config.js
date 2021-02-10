@@ -82,9 +82,9 @@ module.exports = {
             marginRight: { ...percent },
             marginBottom: { ...percent },
             margin: { ...percent },
-            left: { ...spacing },
-            right: { ...spacing },
-            top: { ...spacing },
+            left: { ...spacing, ...percent },
+            right: { ...spacing, ...percent },
+            top: { ...spacing, ...percent },
             bottom: { ...spacing },
             spacing: {percent, ...spacing},
             colors: {
