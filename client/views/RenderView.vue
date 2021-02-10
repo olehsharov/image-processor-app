@@ -25,6 +25,7 @@ export default {
   async mounted() {
     var meta = await imageLibrary.imageMetadata(this.$route.params.name, this.$route.params.image)
     meta.maskSettings.edit = false;
+    if (meta.foregroundSettings.cutout) meta.foregroundSettings.cutout.edit = false;
     this.metadata = meta;
   }
 }
