@@ -45,6 +45,7 @@
                             class="p-2 cursor-pointer hover:bg-gray-700 cursor-pointer relative" 
                             :class="{'bg-gray-600 hover:bg-gray-600' : selected.includes(img.image), 'border' : preview == img.image}" 
                             @click.shift="selectRange(img.image)"
+                            @click.ctrl="toggleSelectAdd(img.image)"
                             @click.meta="toggleSelectAdd(img.image)"
                             @click.exact="previewSelect(img.image)">
                             <img :src="`/api/libraries/${name}/images/${img.image}/thumbnail`">
