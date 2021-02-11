@@ -52,8 +52,8 @@
 
         <EditBox v-if="value && value.maskSettings.edit" v-model="value.maskSettings.gradient" :transform="value.transform"></EditBox>
 
-        <svg>
-            <filter :id="sharpenssId">
+        <svg v-show="false">
+            <filter :id="sharpenssId" >
                 <feConvolveMatrix :order="sharpnessOrder" :kernelMatrix="sharpnessMatrix" preserveAlpha="false"/>
                 <feComponentTransfer>
                     <feFuncR type="gamma" :amplitude="hueRotateR" :exponent="1" offset="0"/>

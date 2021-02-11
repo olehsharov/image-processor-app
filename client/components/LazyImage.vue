@@ -1,5 +1,5 @@
 <template>
-    <img :src="source || emptySrc">
+    <img :src="source || emptySrc" style="image-rendering: high-quality">
 </template>
 <script>
 

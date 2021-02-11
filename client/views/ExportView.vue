@@ -2,43 +2,45 @@
   <div class="flex-grow flex items-center justify-center p-12">
     <div class="bg-gray-800 w-full h-full shadow-xl rounded overflow-hidden flex flex-col relative">
         <div class="bg-gray-800 absolute inset-0 z-10 flex items-center justify-center" v-if="loading"><Loading></Loading></div>
-        <Heading>Експорт</Heading>
-        <div class="flex-grow relative">
-          <div class="absolute inset-0 flex items-center justify-center" v-if="missing">
-              <h1 class="text-gray-700">Еще ничего не выгружено</h1>
-          </div>
-          <div class="inset-0 absolute overflow-y-auto" v-if="!missing">
-            <router-link 
-              v-if="path"
-              class="border-b border-gray-900 px-4 py-3 flex items-center hover:bg-gray-700 text-gray-400 h-20"
-              :to="back">
-              <fa icon="chevron-left"></fa>
-            </router-link>
-
-            <div 
-                v-for="l in list" 
-                :key="l.name" 
-                class="border-b border-gray-900 flex hover:bg-gray-700 h-20 flex w-full relative">
-                <div class="w-24 flex justify-center items-center" v-if="!l.isFile">
-                    <fa icon="folder" class="fa-4x"></fa>
-                </div>
-                <div class="w-24 flex justify-center items-center" v-if="l.isFile && !l.isImage">
-                    <fa icon="file" class="fa-4x"></fa>
-                </div>
-                <div class="w-24 flex justify-center items-center" v-if="l.isFile && l.isImage">
-                    <img :src="`/api/export/${path}${l.name}`" class="max-h-full">
-                </div>
-                <div class="flex flex-col px-4 py-3">
-                    <a v-if="l.isFile" :href="`/api/export/${path}${l.name}`" target="_blank" class="text-gray-300 underline"><b>{{l.name}}</b></a>
-                    <span v-else class="text-gray-300"><b>{{l.name}}</b></span>
-                    <span class="text-xs text-gray-600">{{new Date(l.ctime).toLocaleString('uk')}}</span>
-                </div>
-
-                <router-link v-if="!l.isFile"  :to="`${l.name}/`" class="text-gray-400 absolute inset-0"></router-link>
+        <div>
+            <Heading>Експорт</Heading>
+            <div class="flex-grow relative">
+            <div class="absolute inset-0 flex items-center justify-center" v-if="missing">
+                <h1 class="text-gray-700">Еще ничего не выгружено</h1>
             </div>
+            <div class="inset-0 absolute overflow-y-auto" v-if="!missing">
+                <router-link 
+                v-if="path"
+                class="border-b border-gray-900 px-4 py-3 flex items-center hover:bg-gray-700 text-gray-400 h-20"
+                :to="back">
+                <fa icon="chevron-left"></fa>
+                </router-link>
 
-            <div class="h-20 flex w-full relative justify-center items-center" v-if="list && list.length == 0">
-                <span class="text-gray-700">Нет папок</span>
+                <div 
+                    v-for="l in list" 
+                    :key="l.name" 
+                    class="border-b border-gray-900 flex hover:bg-gray-700 h-20 flex w-full relative">
+                    <div class="w-24 flex justify-center items-center" v-if="!l.isFile">
+                        <fa icon="folder" class="fa-4x"></fa>
+                    </div>
+                    <div class="w-24 flex justify-center items-center" v-if="l.isFile && !l.isImage">
+                        <fa icon="file" class="fa-4x"></fa>
+                    </div>
+                    <div class="w-24 flex justify-center items-center" v-if="l.isFile && l.isImage">
+                        <img :src="`/api/export/${path}${l.name}`" class="max-h-full">
+                    </div>
+                    <div class="flex flex-col px-4 py-3">
+                        <a v-if="l.isFile" :href="`/api/export/${path}${l.name}`" target="_blank" class="text-gray-300 underline"><b>{{l.name}}</b></a>
+                        <span v-else class="text-gray-300"><b>{{l.name}}</b></span>
+                        <span class="text-xs text-gray-600">{{new Date(l.ctime).toLocaleString('uk')}}</span>
+                    </div>
+
+                    <router-link v-if="!l.isFile"  :to="`${l.name}/`" class="text-gray-400 absolute inset-0"></router-link>
+                </div>
+
+                <div class="h-20 flex w-full relative justify-center items-center" v-if="list && list.length == 0">
+                    <span class="text-gray-700">Нет папок</span>
+                </div>
             </div>
           </div>
 
