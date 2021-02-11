@@ -62,6 +62,13 @@ export default new class ImageLibrary {
             body: JSON.stringify({  files: files, settings: settings })
         });
     }
+    async saveMasksSettings(library, files, settings) {
+        await fetch(`/api/libraries/${library}/images/mask`, {
+            method: 'put',
+            headers: { "Content-type" : "application/json" },
+            body: JSON.stringify({  files: files, settings: settings })
+        });
+    }
     async exportImages(library, files) {
         await fetch(`/api/libraries/${library}/images/export`, {
             method: 'put',

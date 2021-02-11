@@ -32,6 +32,10 @@ router.put("/api/libraries/:library/images/foreground", (req, res) => {
     library.saveForegroundSettings(req.params.library, req.body.files, req.body.settings)
     res.sendStatus(200);
 })
+router.put("/api/libraries/:library/images/mask", (req, res) => {
+    library.saveMaskSettings(req.params.library, req.body.files, req.body.settings)
+    res.sendStatus(200);
+})
 router.put("/api/libraries/:library/images/export", (req, res) => {
     library.exportImages(req.params.library, req.body.files)
     res.sendStatus(200);

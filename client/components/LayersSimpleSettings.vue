@@ -7,6 +7,9 @@
             <Slider title="Горизонталь" :min=-0.5 :max=0.5  :step=0.001 v-model="value.transform.x" :defaultValue="0"></Slider>
         </SettingsBlock>
         <SettingsBlock title="Тень">
+            <div slot="title" class="pl-2 flex" v-if="selected && selected.length > 0">
+               <span class="text-xs text-gray-600 cursor-pointer" @click="applyShadow()">ПРИМЕНИТЬ</span>
+           </div>
            <div class="flex">
             <button class="btn btn-xs btn-dark mr-2" :disabled="value.maskSettings.off" @click="() => toggleEditMask()"><fa icon="crosshairs"></fa>&nbsp;&nbsp;Редактировать</button>
             <button class="btn btn-xs btn-dark" v-if="!value.maskSettings.off" @click="() => toggleMask()">Выключить</button>
@@ -102,6 +105,11 @@ export default {
     props: ['value', 'selected'],
     components: {SettingsBlock, Slider},
     methods: {
+        applyShadow() {
+            this.$emit('mask', {
+                maskSettings: this.value.maskSettings
+            })
+        },
         applySettings() {
             var settings = {...this.value.foregroundSettings }
             delete settings['cutout'];

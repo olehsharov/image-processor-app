@@ -97,6 +97,13 @@ class ImageLibrary {
             this.writeImageMetadata(folder, f, metadata);
         })
     }
+    async saveMaskSettings(folder, files, settings) {
+        files.forEach(f => {
+            var metadata = this.imageMetadata(folder, f);
+            metadata.maskSettings = settings.maskSettings;
+            this.writeImageMetadata(folder, f, metadata);
+        })
+    }
     async exportImages(folder, files) {
         files.forEach(f => {
             var metadata = this.imageMetadata(folder, f);

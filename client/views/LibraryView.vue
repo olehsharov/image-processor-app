@@ -38,6 +38,7 @@
                         class="absolute inset-0 overflow-y-auto" 
                         v-model="metadata" 
                         :selected="selected" 
+                        @mask="saveMasksSettings($event)"
                         @foreground="saveForegroundSettings($event)"
                         @export="exportImages()">
                     </LayersSimpleSettings>
@@ -98,6 +99,11 @@ export default {
         async exportImages() {
             this.$set(this.metadata, 'exporting', true)
             await imageLibrary.exportImages(this.name, uniq([this.preview, ...this.selected]));
+        },
+        async saveMasksSettings(settings) {
+            this.loading = true;
+            await imageLibrary.saveMasksSettings(this.name, this.selected, settings);
+            this.loading = false;
         },
         async saveForegroundSettings(settings) {
             this.loading = true;
