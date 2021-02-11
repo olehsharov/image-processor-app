@@ -115,6 +115,15 @@ export default {
             this.$set(this.value.maskSettings, 'edit', !this.value.maskSettings.edit);
         },
         toggleEditRect() {
+            if (!this.value.foregroundSettings.cutout) {
+                this.$set(this.value.foregroundSettings, 'cutout', {
+                    x: 50,
+                    y: 50,
+                    width: 85,
+                    height: 85,
+                    edit: false
+                });
+            }
             this.$set(this.value.foregroundSettings.cutout, 'edit', !this.value.foregroundSettings.cutout.edit);
         }
     }
