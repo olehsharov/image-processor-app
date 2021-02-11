@@ -101,7 +101,6 @@ class ImageLibrary {
         files.forEach(f => {
             var metadata = this.imageMetadata(folder, f);
             metadata.backgroundSettings = settings.backgroundSettings;
-            metadata.maskSettings = settings.maskSettings;
             this.writeImageMetadata(folder, f, metadata);
         })
     }
