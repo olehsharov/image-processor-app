@@ -107,6 +107,7 @@ export default {
     methods: {
         applyShadow() {
             this.$emit('mask', {
+                backgroundSettings: this.value.backgroundSettings,
                 maskSettings: this.value.maskSettings
             })
         },
