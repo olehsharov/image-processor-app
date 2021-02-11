@@ -2,8 +2,17 @@
     <div class="absolute flex justify-center items-center inset-0" :style="transformStyles">
         <!-- BACKGROUND SEPARATION BASED ON EXTRACTED FOREGROUND -->
         <Layer v-if="value && value.processed"  class="absolute flex justify-center items-center inset-0" :settings="value.backgroundSettings">
-            <ImageLayer class="absolute h-full" :src="`/api/libraries/${library}/images/${image}`" @load="imageLoaded()"></ImageLayer>
-            <ImageLayer class="absolute  h-full" :src="`/api/libraries/${library}/images/${image}/foreground`" @load="imageLoaded()" :settings="{blend: 'difference', filters: { contrast: {value: '-10'}, blur: { value: '1'}} }"></ImageLayer>
+            <ImageLayer class="absolute h-full" 
+                :src="`/api/libraries/${library}/images/${image}`"
+                :thumbnail="`/api/libraries/${library}/images/${image}/thumbnail`"
+                @load="imageLoaded()">
+            </ImageLayer>
+            <ImageLayer class="absolute  h-full" 
+                :src="`/api/libraries/${library}/images/${image}/foreground`" 
+                :thumbnail="`/api/libraries/${library}/images/${image}/foreground/thumbnail`" 
+                @load="imageLoaded()" 
+                :settings="{blend: 'difference', filters: { contrast: {value: '-10'}, blur: { value: '1'}} }">
+            </ImageLayer>
         </Layer>
 
         <!-- LAYER THAT MAKES SHADOWS POP FORM ORIGINAL IMAGE -->
@@ -13,6 +22,7 @@
         <Layer v-if="value && value.processed" class="absolute flex justify-center items-center inset-0" :style="sharpnessStyles">
             <ImageLayer class="absolute  h-full" 
                 :src="`/api/libraries/${library}/images/${image}/foreground`" 
+                :thumbnail="`/api/libraries/${library}/images/${image}/foreground/thumbnail`" 
                 @load="imageLoaded()" 
                 :settings="value.foregroundSettings">
             </ImageLayer>
@@ -20,12 +30,21 @@
 
         <!-- FOREGROUND IF NOT PROCESSED-->
         <Layer v-else class="absolute flex justify-center items-center inset-0" :style="sharpnessStyles" >
-            <ImageLayer class="absolute h-full" :src="`/api/libraries/${library}/images/${image}`"  @load="imageLoaded()" :settings="value.foregroundSettings"></ImageLayer>
+            <ImageLayer class="absolute h-full" 
+                :src="`/api/libraries/${library}/images/${image}`"  
+                :thumbnail="`/api/libraries/${library}/images/${image}/thumbnail`"  
+                @load="imageLoaded()" :settings="value.foregroundSettings">
+            </ImageLayer>
         </Layer>
 
         <!-- FOREGROUND: JUST INPUT IMAGE-->
         <Layer v-if="value.maskSettings.off" class="absolute flex justify-center items-center inset-0" :style="sharpnessStyles" >
-            <ImageLayer class="absolute h-full" :src="`/api/libraries/${library}/images/${image}`" @load="imageLoaded()" :settings="value.foregroundSettings"></ImageLayer>
+            <ImageLayer class="absolute h-full" 
+                :src="`/api/libraries/${library}/images/${image}`"  
+                :thumbnail="`/api/libraries/${library}/images/${image}/thumbnail`"   
+                @load="imageLoaded()" 
+                :settings="value.foregroundSettings">
+            </ImageLayer>
         </Layer>
 
         <Rectangle v-if="value.foregroundSettings.cutout" v-model="value.foregroundSettings.cutout" color="#f7f7f7"></Rectangle>

@@ -58,6 +58,9 @@ router.get("/api/libraries/:library/images/:image/thumbnail", (req, res) => {
 router.get("/api/libraries/:library/images/:image/foreground", (req, res) => {
     res.sendFile(library.foreground(req.params.library, req.params.image));
 })
+router.get("/api/libraries/:library/images/:image/foreground/thumbnail", async (req, res) => {
+    res.sendFile(await library.foregroundThumbnail(req.params.library, req.params.image));
+})
 router.get("/api/libraries/:library/images/:image", (req, res) => {
     res.sendFile(library.image(req.params.library, req.params.image));
 })

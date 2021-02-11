@@ -66,6 +66,14 @@ class ImageLibrary {
     foreground(name, image) {
         return path.join(this.libraryFolder, name, `${image}.background/foreground.png`)
     }
+    async foregroundThumbnail(name, image) {
+        var foreground = path.join(this.libraryFolder, name, `${image}.background/foreground.png`);
+        var thumbnail = `${foreground}.thumbnail.png`;
+        if (!fs.existsSync(thumbnail)) {
+            await sharp(foreground).resize(380).png({quality: 50 }).toFile(thumbnail);
+        }
+        return thumbnail;
+    }
     image(name, image) {
         return path.join(this.libraryFolder, name, `${image}.jpg`)
     }
