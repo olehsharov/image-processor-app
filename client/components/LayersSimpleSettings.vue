@@ -103,9 +103,11 @@ export default {
     components: {SettingsBlock, Slider},
     methods: {
         applySettings() {
+            var settings = {...this.value.foregroundSettings }
+            delete settings['cutout'];
             this.$emit('foreground', {
                 sharpness: this.value.sharpness,
-                foregroundSettings: Object.assign({}, this.value.foregroundSettings)
+                foregroundSettings: settings
             })
         },
         toggleMask() {
