@@ -119,8 +119,8 @@ export default {
                 this.$set(this.value.foregroundSettings, 'cutout', {
                     x: 50,
                     y: 50,
-                    width: 85,
-                    height: 85,
+                    width: 100,
+                    height: 100,
                     edit: false
                 });
             }
