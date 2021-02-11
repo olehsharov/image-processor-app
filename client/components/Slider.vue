@@ -14,6 +14,11 @@
 <script>
 export default {
     props: ['title', 'value', 'min', 'max', 'step', 'defaultValue'],
+    mounted() {
+        if (!this.value) {
+            this.$emit('input', this.defaultValue || 0)
+        }
+    }
 
 }
 </script>

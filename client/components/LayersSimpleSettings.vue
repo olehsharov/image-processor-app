@@ -93,6 +93,40 @@
                 :defaultValue="0"
                 v-model="value.sharpness">
             </Slider>
+
+            <Slider
+                title="R" 
+                :min="0.8" 
+                :max="1.2" 
+                :defaultValue="1" 
+                :step="0.001" 
+                v-model="value.foregroundSettings.r">
+            </Slider>
+           <Slider
+                title="G" 
+                :min="0.8" 
+                :max="1.2" 
+                :defaultValue="1" 
+                :step="0.001" 
+                v-model="value.foregroundSettings.g">
+            </Slider>
+           <Slider
+                title="B" 
+                :min="0.8" 
+                :max="1.2" 
+                :defaultValue="1" 
+                :step="0.001" 
+                v-model="value.foregroundSettings.b">
+            </Slider>
+           <Slider
+                title="EXP" 
+                :min="-5" 
+                :max="5" 
+                :defaultValue="1" 
+                :step="0.001" 
+                v-model="value.foregroundSettings.exp">
+            </Slider>
+
         </SettingsBlock>
     </div>
 </template>

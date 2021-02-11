@@ -46,7 +46,7 @@
                 :min="f.min" 
                 :step="f.step" 
                 v-model="value.foregroundSettings.filters[f.name].value">
-            </Slider>
+           </Slider>
         </SettingsBlock>
         <!-- <pre class="bg-gray-200 text-gray-1200 text-xs">
 {{JSON.stringify(value, null, 2)}}

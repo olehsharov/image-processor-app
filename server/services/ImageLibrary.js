@@ -249,7 +249,7 @@ class ImageLibrary {
             fs.mkdirSync(outputFolder);
         }
         var outputFilename = imageMetadata.name;
-        var exportFile = `${outputFolder}/${outputFilename}.png`;
+        var exportFile = `${outputFolder}/${outputFilename}.jpg`;
         const browser = await puppeteer.launch({
             args: ['--no-sandbox', '--disable-setuid-sandbox'], 
             headless: true
@@ -260,13 +260,32 @@ class ImageLibrary {
             waitUntil: "networkidle0",
             timeout: 0
         });
-        await page.screenshot({path: exportFile,  type: "png"});
+        await page.screenshot({path: exportFile,  type: "jpeg", quality: 99 });
         await browser.close();
         imageMetadata.exported = true;
         imageMetadata.exporting = false;
         this.writeImageMetadata(library, image, imageMetadata);
     }
 }
+
+// (async () => {
+//     const browser = await puppeteer.launch({
+//         args: ['--no-sandbox', '--disable-setuid-sandbox', '--enable-gpu-client-tracing', '--enable-nacl', '--enable-oop-rasterization'], 
+//         headless: false,
+        
+//     });
+//     const page = await browser.newPage();
+//     page.setViewport({width:3000, height: 3000});
+//     await page.goto(`http://localhost:8899/render/6fbc2600-6b96-11eb-a5c6-7396443d3c3d/f56a1b70-6c74-11eb-bfb1-2d03dd52c9db`, {
+//         waitUntil: "networkidle0",
+//         timeout: 0
+//     });
+//     await page.screenshot({
+//         path: "test",  
+//         type: "jpeg",
+//         quality: 99
+//     });
+// })();
 
 
 module.exports = ImageLibrary;

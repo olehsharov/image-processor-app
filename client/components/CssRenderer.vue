@@ -56,9 +56,9 @@
             <filter :id="sharpenssId" >
                 <feConvolveMatrix :order="sharpnessOrder" :kernelMatrix="sharpnessMatrix" preserveAlpha="false"/>
                 <feComponentTransfer>
-                    <feFuncR type="gamma" :amplitude="hueRotateR" :exponent="1" offset="0"/>
-		            <feFuncG type="gamma" amplitude="1" :exponent="1" offset="0"/>
-		            <feFuncB type="gamma" :amplitude="hueRotateB" :exponent="1" offset="0"/>
+                    <feFuncR type="gamma" :amplitude="value.foregroundSettings.r || 1" :exponent="1"/>
+		            <feFuncG type="gamma" :amplitude="value.foregroundSettings.g || 1" :exponent="1"/>
+		            <feFuncB type="gamma" :amplitude="value.foregroundSettings.b || 1" :exponent="1"/>
 		            <feFuncA type="identity"/>
   	            </feComponentTransfer>
             </filter>
@@ -105,27 +105,20 @@ export default {
         }
     },
     computed: {
-        hueExponent() {
-            if (this.value.foregroundSettings) {
-                var hue = this.value.foregroundSettings.filters['hue-rotate'].value;
-                return 1 + Math.abs(hue/90);
-            }
-            return 1; 
-        },
-        hueRotateR() {
-            if (this.value.foregroundSettings) {
-                var hue = this.value.foregroundSettings.filters['hue-rotate'].value;
-                return hue > 0 ? 1 + Math.abs(hue/60) : 1;
-            }
-            return 1;
-        },
-        hueRotateB() {
-            if (this.value.foregroundSettings) {
-                var hue = this.value.foregroundSettings.filters['hue-rotate'].value;
-                return hue < 0 ? 1 + Math.abs(hue/60) : 1;
-            }
-            return 1;
-        },
+        // hueRotateR() {
+        //     if (this.value.foregroundSettings) {
+        //         var hue = this.value.foregroundSettings.filters['hue-rotate'].value;
+        //         return hue > 0 ? 1 + Math.abs(hue/60) : 1;
+        //     }
+        //     return 1;
+        // },
+        // hueRotateB() {
+        //     if (this.value.foregroundSettings) {
+        //         var hue = this.value.foregroundSettings.filters['hue-rotate'].value;
+        //         return hue < 0 ? 1 + Math.abs(hue/60) : 1;
+        //     }
+        //     return 1;
+        // },
         imagesToLoad() {
             return this.value.processed  ? 3 : 1;
         },

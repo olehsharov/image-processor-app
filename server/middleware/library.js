@@ -107,7 +107,7 @@ router.get("/api/export/*", (req, res) => {
                         name: f,
                         ...stats,
                         isFile: stats.isFile(),
-                        isImage: f.toLowerCase().endsWith('png')
+                        isImage: f.toLowerCase().endsWith('png') || f.toLowerCase().endsWith('jpg')
                     }
             })
             result = result.sort((a, b) => a.isFile ? 1 : -1);
