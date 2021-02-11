@@ -72,13 +72,13 @@
                 :defaultValue="1"
                 v-model="value.foregroundSettings.filters['saturate'].value">
             </Slider>
-            <Slider title="Оттенок" 
+            <!-- <Slider title="Оттенок" 
                 :max="30" 
                 :min="-30" 
                 :step="value.foregroundSettings.filters['hue-rotate'].step" 
                 :defaultValue="0"
                 v-model="value.foregroundSettings.filters['hue-rotate'].value">
-            </Slider>
+            </Slider> -->
             <Slider title="Туман" 
                 :max="20" 
                 :min="0" 
@@ -117,14 +117,6 @@
                 :defaultValue="1" 
                 :step="0.001" 
                 v-model="value.foregroundSettings.b">
-            </Slider>
-           <Slider
-                title="EXP" 
-                :min="-5" 
-                :max="5" 
-                :defaultValue="1" 
-                :step="0.001" 
-                v-model="value.foregroundSettings.exp">
             </Slider>
 
         </SettingsBlock>
