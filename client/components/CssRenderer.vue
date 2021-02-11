@@ -29,7 +29,7 @@
         </Layer>
 
         <Rectangle v-if="value.foregroundSettings.cutout" v-model="value.foregroundSettings.cutout" color="#f7f7f7"></Rectangle>
-        <EditBox v-if="value.foregroundSettings.cutout.edit" v-model="value.foregroundSettings.cutout" :default="defaultCutout" :transform="value.transform"></EditBox>
+        <EditBox v-if="value.foregroundSettings.cutout && value.foregroundSettings.cutout.edit" v-model="value.foregroundSettings.cutout" :default="defaultCutout" :transform="value.transform"></EditBox>
 
         <!-- <EditBox v-if="value && value.maskSettings.edit" v-model="value.maskSettings.gradient" :transform="value.transform"></EditBox> -->
 
